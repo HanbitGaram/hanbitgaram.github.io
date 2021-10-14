@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ko">
+	<head>
+		<meta charset="utf-8">
+		<title>내 마인드를 클릭하기</title>
+	</head>
+	<body>
+		<button id="button_1">버튼 1은 독사과</button>
+		<button id="button_2">버튼 2는 꿀사과</button>
+		<button id="button_3">버튼 3은 뱀사과</button>
+		<div id="result">위의 버튼을 눌러보라오</div>
+		
+		<script>
+			document.getElementById("button_1").addEventListener("click", function() {
+				document.getElementById("result").innerText = "독사과";
+			});
+			document.getElementById("button_2").addEventListener("click", function() {
+				document.getElementById("result").innerText = "꿀사과";
+			});
+			document.getElementById("button_3").addEventListener("click", function() {
+				document.getElementById("result").innerText = "뱀사과";
+			});
+		</script>
+	</body>
+</html>
