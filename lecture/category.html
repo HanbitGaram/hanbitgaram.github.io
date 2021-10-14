@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko">
+	<head>
+		<meta charset="utf-8">
+		<title>카테고리를 누르면 컨텐츠가 나와요!</title>
+    <style>
+      #category{}
+      #category a{}
+      #category a.active{ color:#aaa; }
+      .contents div{display:none;}
+    </style>
+	</head>
+	<body>
+    <h1>카테고리</h1>
+		<div id="category">
+      <a href="#" onclick="contentOpen('house');">주택</a>
+      <a href="#" onclick="contentOpen('tree');">토목</a>
+      <a href="#" onclick="contentOpen('river');">계곡</a>
+    </div>
+    <h1>컨텐츠</h1>
+    <div class="contents">
+      <div id="house">주택은 집이 좋습니다</div>
+      <div id="tree">토목은 산림이 울창하고 좋습니다</div>
+      <div id="river">계곡은 물이 흘러서 수맥이 인체의 기에 미치는 영향이 커서 몸에 좋지 않습니다</div>
+    </div>
+		
+		<script>
+			function contentOpen(args){
+        const contents = document.querySelectorAll('.contents > div');
+        for(let i=0; i<contents.length; i++){
+          contents[i].style.display='none';
+        }
+        document.getElementById(args).style.display='block';
+        return false;
+      }
+		</script>
+	</body>
+</html>
