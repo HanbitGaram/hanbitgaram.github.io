@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ko">
+	<head>
+		<meta charset="utf-8">
+		<title>VRC짱</title>
+    <style>
+      #button_1{background:url(https://cdn.hanbitgaram.com/images/hNjA2YmQ3ZDE1MzmYjA2YTA/zMzEzNWI1N2ZiNzY0OGY3FmODExMDJlZWIxZ.png) no-repeat center center; width:300px; height:300px;}
+      #image_1{display:inline-block; width:300px; height:300px; background:url(https://cdn.hanbitgaram.com/images/hNjA2YmQ3ZDE1MzmYjA2YTA/zMzEzNWI1N2ZiNzY0OGY3FmODExMDJlZWIxZ.png) no-repeat center center;}
+      #button_2{display:none;}
+    </style>
+	</head>
+	<body>
+    <h1>서브밋 버튼에 이미지 넣기 (1차)</h1>
+		<input type="submit" id="button_1">
+    
+    <h1>서브밋 버튼에 이미지 넣기 (2차)</h1>
+    <a href="#" id="image_1" onclick="document.getElementById('button_2').click(); return false;"></a>
+    <input type="submit" id="button_2">
+	</body>
+</html>
