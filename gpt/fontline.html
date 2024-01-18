@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto Font Size Adjustment</title>
+  <style>
+    body{font-size:80px;}
+    /* 추가적인 스타일링은 필요에 따라 적용하세요 */
+    #dynamicText {
+      white-space: nowrap; /* 텍스트가 한 줄로만 표시되도록 설정 */
+      overflow: hidden;
+      text-overflow: ellipsis; /* 텍스트가 너무 길 경우 생략 부호(...) 표시 */
+      transition: font-size 0.3s ease; /* 부드러운 폰트 크기 전환을 위한 트랜지션 설정 */
+    }
+  </style>
+</head>
+<body>
+
+<div id="dynamicText">Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lor</div>
+
+<script>
+  // 함수 호출
+  adjustFontSize();
+
+  // 창 크기가 변경될 때마다 함수 호출
+  window.addEventListener('resize', adjustFontSize);
+
+  function adjustFontSize() {
+    var divElement = document.getElementById('dynamicText');
+    var maxHeight = 20; // 특정 높이 (50px)를 기준으로 설정, 필요에 따라 조절 가능
+
+    // 현재 div 요소의 높이가 maxHeight보다 크면 폰트 크기를 줄임
+    if (divElement.offsetHeight > maxHeight) {
+      var currentFontSize = parseInt(window.getComputedStyle(divElement).fontSize);
+      var newFontSize = currentFontSize * (maxHeight / divElement.offsetHeight);
+      divElement.style.fontSize = newFontSize + 'px';
+    } else {
+      // 만약 2줄이 아니면 폰트 크기를 초기화
+      divElement.style.fontSize = '';
+    }
+  }
+</script>
+
+</body>
+</html>
