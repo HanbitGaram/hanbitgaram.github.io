@@ -126,10 +126,17 @@
         {
           name: "카메라 차단 프로파일",
           file: "disable-camera.mobileconfig",
-          description:
-            "카메라 사용을 제한하는 구성 프로파일 (예: supervised/제한 설정용).",
+          description: "카메라 사용을 제한하는 구성 프로파일 (기관 방문용 등)",
           version: "v1.0",
           tag: "Security",
+        },
+        {
+          name: "스크린샷 차단 프로파일",
+          file: "block-screenshot.mobileconfig",
+          description:
+            "스크린샷 제한하는 구성 프로파일. 아마 MDM에서 설치해야 제대로 동작할 것 같음.",
+          version: "v1.0",
+          tag: "System",
         },
       ];
 
@@ -138,6 +145,9 @@
       function card(p) {
         const el = document.createElement("div");
         el.className = "card";
+
+        // iOS Safari에서 .mobileconfig 링크 클릭 → 다운로드(설치 유도)
+        // download 속성은 iOS에서 무시될 수 있지만, 있어도 해롭지 않음.
         const href = encodeURI(p.file);
 
         el.innerHTML = `
@@ -147,10 +157,10 @@
         }</div>
         <div class="desc">${escapeHtml(p.description ?? "")}</div>
         <div class="btns">
-          <a class="btn primary" href="./files/${href}">
+          <a class="btn primary" href="./files/${href}" type="application/x-apple-aspen-config" download>
             다운로드 / 설치
           </a>
-          <a class="btn" href="./files/${href}" target="_blank">
+          <a class="btn" href="./files/${href}" target="_blank" rel="noopener">
             새 탭에서 열기
           </a>
         </div>
