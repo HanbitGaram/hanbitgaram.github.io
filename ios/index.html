@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>iOS 프로파일 다운로드</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+        margin: 0;
+      }
+      .wrap {
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+      h1 {
+        font-size: 22px;
+        margin: 0 0 10px;
+      }
+      p {
+        margin: 8px 0;
+        line-height: 1.5;
+        opacity: 0.9;
+      }
+      .grid {
+        display: grid;
+        gap: 12px;
+        margin-top: 16px;
+      }
+      @media (min-width: 720px) {
+        .grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      .card {
+        border: 1px solid rgba(127, 127, 127, 0.25);
+        border-radius: 14px;
+        padding: 14px;
+      }
+      .title {
+        font-weight: 700;
+        margin: 0 0 6px;
+      }
+      .desc {
+        margin: 0 0 12px;
+        font-size: 14px;
+        opacity: 0.85;
+      }
+      .meta {
+        font-size: 12px;
+        opacity: 0.75;
+        margin-bottom: 10px;
+      }
+      .btns {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      a.btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 12px;
+        border-radius: 12px;
+        text-decoration: none;
+        border: 1px solid rgba(127, 127, 127, 0.35);
+        font-weight: 700;
+        font-size: 14px;
+      }
+      a.btn.primary {
+        background: rgba(0, 122, 255, 0.18);
+        border-color: rgba(0, 122, 255, 0.4);
+      }
+      .note {
+        margin-top: 18px;
+        padding: 12px;
+        border-radius: 14px;
+        background: rgba(127, 127, 127, 0.12);
+      }
+      ol {
+        margin: 8px 0 0 18px;
+      }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", monospace;
+        font-size: 12px;
+      }
+      footer {
+        margin-top: 18px;
+        font-size: 12px;
+        opacity: 0.7;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>iOS 프로파일 다운로드</h1>
+      <p>iPhone/iPad에서 Safari로 열고 원하는 프로파일을 눌러 설치하세요.</p>
+
+      <div class="note">
+        <strong>설치 흐름</strong>
+        <ol>
+          <li>버튼 클릭 → 프로파일(.mobileconfig) 다운로드</li>
+          <li>
+            <b>설정</b> 앱 열기 → “프로파일 다운로드됨” 또는
+            <b>일반 &gt; VPN 및 기기 관리</b>
+          </li>
+          <li>프로파일 선택 → 설치</li>
+        </ol>
+      </div>
+
+      <div class="grid" id="list"></div>
+
+      <footer>여러?가지 프로파일을 준비해뒀습니다.</footer>
+    </div>
+
+    <script>
+      // ✅ 여기에 프로파일 목록만 추가/수정하면 됨
+      const PROFILES = [
+        {
+          name: "카메라 차단 프로파일",
+          file: "disable-camera.mobileconfig",
+          description:
+            "카메라 사용을 제한하는 구성 프로파일 (예: supervised/제한 설정용).",
+          version: "v1.0",
+          tag: "Security",
+        },
+      ];
+
+      const list = document.getElementById("list");
+
+      function card(p) {
+        const el = document.createElement("div");
+        el.className = "card";
+
+        // iOS Safari에서 .mobileconfig 링크 클릭 → 다운로드(설치 유도)
+        // download 속성은 iOS에서 무시될 수 있지만, 있어도 해롭지 않음.
+        const href = encodeURI(p.file);
+
+        el.innerHTML = `
+        <div class="title">${escapeHtml(p.name)}</div>
+        <div class="meta">${escapeHtml(p.tag ?? "")} ${
+          p.version ? " · " + escapeHtml(p.version) : ""
+        }</div>
+        <div class="desc">${escapeHtml(p.description ?? "")}</div>
+        <div class="btns">
+          <a class="btn primary" href="./files/${href}" type="application/x-apple-aspen-config" download>
+            다운로드 / 설치
+          </a>
+          <a class="btn" href="/files/${href}" target="_blank" rel="noopener">
+            새 탭에서 열기
+          </a>
+        </div>
+      `;
+        return el;
+      }
+
+      // 간단 XSS 방지용
+      function escapeHtml(s) {
+        return String(s).replace(
+          /[&<>"']/g,
+          (m) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            }[m])
+        );
+      }
+
+      PROFILES.forEach((p) => list.appendChild(card(p)));
+    </script>
+  </body>
+</html>

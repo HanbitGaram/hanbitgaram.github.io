@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            <key>PayloadType</key>
+            <string>com.apple.applicationaccess</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+            <key>PayloadIdentifier</key>
+            <string>jp.hanbitgaram.disablecamera.restrictions</string>
+            <key>PayloadUUID</key>
+            <string>e6a155ef-f77e-4696-887c-b4e64742e288</string>
+            <key>PayloadDisplayName</key>
+            <string>Camera Restrictions</string>
+            <key>allowCamera</key>
+            <false/>
+        </dict>
+    </array>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+    <key>PayloadIdentifier</key>
+    <string>jp.hanbitgaram.disablecamera</string>
+    <key>PayloadUUID</key>
+    <string>aef62919-abad-4044-9506-784d37d28e2f</string>
+    <key>PayloadDisplayName</key>
+    <string>카메라 차단 프로파일 (iOS용)</string>
+    <key>PayloadDescription</key>
+    <string>이 프로파일을 사용하면 카메라 사용을 제한할 수 있습니다.</string>
+    <key>PayloadOrganization</key>
+    <string>한빛가람</string>
+    <key>PayloadRemovalDisallowed</key>
+    <false/>
+</dict>
+</plist>
