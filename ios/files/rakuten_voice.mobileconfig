@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ConsentText</key>
+	<dict>
+		<key>default</key>
+		<string>楽天モバイルB　通話SIM　APN設定用プロファイル</string>
+	</dict>
+        <key>PayloadContent</key>
+        <array>
+            <dict>
+                       <key>AttachAPN</key>
+                       <dict>
+                          <key>Name</key>
+                          <string>rmobile.jp</string>
+                          <key>AuthenticationType</key>
+                          <string>CHAP</string>
+                          <key>Username</key>
+                          <string>rm</string>
+                          <key>Password</key>
+                          <string>0000</string>
+                        </dict>
+                        <key>APNs</key>
+                        <array>
+                            <dict>
+                                <key>Name</key>
+                                <string>rmobile.jp</string>
+                                <key>AuthenticationType</key>
+                                <string>CHAP</string>
+                                <key>Username</key>
+                                <string>rm</string>
+                                <key>Password</key>
+                                <string>0000</string>
+                            </dict>
+                        </array>
+                <key>PayloadDescription</key>
+                <string>Provides customization of carrier Access Point Name.</string>
+                <key>PayloadDisplayName</key>
+                <string>Advanced Settings</string>
+                <key>PayloadIdentifier</key>
+                <string>jp.rmobile.cellular</string>
+                <key>PayloadOrganization</key>
+                <string>Rakuten, Inc.</string>
+                <key>PayloadType</key>
+                <string>com.apple.cellular</string>
+                <key>PayloadUUID</key>
+                <string>A86FF611-23E7-4B7F-B933-BED09868FAEA</string>
+                <key>PayloadVersion</key>
+                <integer>1</integer>
+            </dict>
+        </array>
+        <key>PayloadDescription</key>
+        <string>楽天モバイルB　通話SIM　APN設定用プロファイル</string>
+        <key>PayloadDisplayName</key>
+        <string>楽天モバイル</string>
+        <key>PayloadIdentifier</key>
+        <string>jp.rmobile</string>
+        <key>PayloadOrganization</key>
+        <string>Rakuten, Inc.</string>
+        <key>PayloadType</key>
+        <string>Configuration</string>
+        <key>PayloadUUID</key>
+        <string>D4A0C943-36CB-4773-8D2E-BA3F784743E8</string>
+        <key>PayloadVersion</key>
+        <integer>1</integer>
+</dict>
+</plist>
