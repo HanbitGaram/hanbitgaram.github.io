@@ -138,9 +138,6 @@
       function card(p) {
         const el = document.createElement("div");
         el.className = "card";
-
-        // iOS Safari에서 .mobileconfig 링크 클릭 → 다운로드(설치 유도)
-        // download 속성은 iOS에서 무시될 수 있지만, 있어도 해롭지 않음.
         const href = encodeURI(p.file);
 
         el.innerHTML = `
@@ -150,7 +147,7 @@
         }</div>
         <div class="desc">${escapeHtml(p.description ?? "")}</div>
         <div class="btns">
-          <a class="btn primary" href="./files/${href}" type="application/x-apple-aspen-config" download>
+          <a class="btn primary" href="./files/${href}">
             다운로드 / 설치
           </a>
           <a class="btn" href="./files/${href}" target="_blank">
