@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ConsentText</key>
+	<dict>
+		<key>default</key>
+		<string>APN設定プロファイル</string>
+	</dict>
+        <key>PayloadContent</key>
+        <array>
+            <dict>
+                        <key>AttachAPN</key>
+                        <dict>
+                           <key>Name</key>
+                           <string>bmobile.ne.jp</string>
+                           <key>AuthenticationType</key>
+                           <string>CHAP</string>
+                           <key>Username</key>
+                           <string>bmobile@4g</string>
+                           <key>Password</key>
+                           <string>bmobile</string>
+                        </dict>
+                        <key>APNs</key>
+                        <array>
+                            <dict>
+                               <key>Name</key>
+                                <string>bmobile.ne.jp</string>
+                                <key>AuthenticationType</key>
+                                <string>CHAP</string>
+                                <key>Username</key>
+                                <string>bmobile@4g</string>
+                                <key>Password</key>
+                                <string>bmobile</string>
+                            </dict>
+                        </array>
+                <key>PayloadDescription</key>
+                <string>bmobileAPNProfile</string>
+                <key>PayloadDisplayName</key>
+                <string>APNsetting</string>
+                <key>PayloadIdentifier</key>
+                <string>jp.co.j-com</string>
+                <key>PayloadOrganization</key>
+                <string>Japan Communications Inc.</string>
+                <key>PayloadType</key>
+                <string>com.apple.cellular</string>
+                <key>PayloadUUID</key>
+                <string>0F6F7340-94E7-4757-9FC8-DCED31DB8FA3</string>
+                <key>PayloadVersion</key>
+                <integer>1</integer>
+            </dict>
+        </array>
+        <key>PayloadDescription</key>
+        <string>APN設定プロファイル</string>
+        <key>PayloadDisplayName</key>
+        <string>b-mobile Profile (DC)</string>
+        <key>PayloadIdentifier</key>
+        <string>jp.co.j-com</string>
+        <key>PayloadOrganization</key>
+        <string>Japan Communications Inc.</string>
+        <key>PayloadType</key>
+        <string>Configuration</string>
+        <key>PayloadUUID</key>
+        <string>9D370676-4E4F-4830-92D5-8479295E632E</string>
+        <key>PayloadVersion</key>
+        <integer>1</integer>
+</dict>
+</plist>

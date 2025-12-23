@@ -96,12 +96,58 @@
         font-size: 12px;
         opacity: 0.7;
       }
+      .controls {
+        margin-top: 16px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .search-box {
+        flex: 1;
+        min-width: 200px;
+        padding: 10px 12px;
+        border: 1px solid rgba(127, 127, 127, 0.35);
+        border-radius: 12px;
+        font-size: 14px;
+        font-family: inherit;
+        background: transparent;
+      }
+      .tag-filter {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+      }
+      .tag-btn {
+        padding: 8px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(127, 127, 127, 0.35);
+        background: transparent;
+        font-size: 13px;
+        cursor: pointer;
+        font-family: inherit;
+      }
+      .tag-btn.active {
+        background: rgba(0, 122, 255, 0.18);
+        border-color: rgba(0, 122, 255, 0.4);
+        font-weight: 700;
+      }
     </style>
   </head>
   <body>
     <div class="wrap">
       <h1>iOS 프로파일 다운로드</h1>
       <p>iPhone/iPad에서 Safari로 열고 원하는 프로파일을 눌러 설치하세요.</p>
+
+      <div class="controls">
+        <input
+          type="text"
+          id="search"
+          class="search-box"
+          placeholder="프로파일 이름으로 검색..."
+        />
+      </div>
 
       <div class="note">
         <strong>설치 흐름</strong>
@@ -114,6 +160,8 @@
           <li>프로파일 선택 → 설치</li>
         </ol>
       </div>
+
+      <div class="tag-filter" id="tagFilter"></div>
 
       <div class="grid" id="list"></div>
 
@@ -136,7 +184,7 @@
           description:
             "스크린샷 제한하는 구성 프로파일. 아마 MDM에서 설치해야 제대로 동작할 것 같음.",
           version: "v1.0",
-          tag: "System",
+          tag: "Security",
         },
         {
           name: "IIJmio 셀룰러 프로파일",
@@ -177,13 +225,80 @@
         {
           name: "라쿠텐 모바일 셀룰러 프로파일",
           file: "rakuten_voice.mobileconfig",
-          description: "일본 라쿠텐모바일 셀룰러 데이터 설정용 프로파일.",
+          description: "일본 라쿠텐 모바일 음성/데이터 설정용 프로파일.",
+          version: "v1.0",
+          tag: "Network",
+        },
+        {
+          name: "KABU& 모바일 셀룰러 프로파일",
+          file: "kabuand.mobileconfig",
+          description: "일본 KABU& MVNO 설정용 프로파일.",
+          version: "v1.0",
+          tag: "Network",
+        },
+        {
+          name: "B 모바일 셀룰러 프로파일",
+          file: "bmobileCelluar_ios.mobileconfig",
+          description: "일본 B 모바일 셀룰러 데이터 설정용 프로파일.",
           version: "v1.0",
           tag: "Network",
         },
       ];
 
       const list = document.getElementById("list");
+      const searchInput = document.getElementById("search");
+      const tagFilterDiv = document.getElementById("tagFilter");
+
+      let currentTag = "All";
+      let searchTerm = "";
+
+      // 모든 태그 추출
+      const allTags = [
+        "All",
+        ...new Set(PROFILES.map((p) => p.tag).filter(Boolean)),
+      ];
+
+      // 태그 필터 버튼 생성
+      allTags.forEach((tag) => {
+        const btn = document.createElement("button");
+        btn.className = "tag-btn" + (tag === "All" ? " active" : "");
+        btn.textContent = tag;
+        btn.onclick = () => {
+          currentTag = tag;
+          document
+            .querySelectorAll(".tag-btn")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          renderProfiles();
+        };
+        tagFilterDiv.appendChild(btn);
+      });
+
+      // 검색 입력 이벤트
+      searchInput.addEventListener("input", (e) => {
+        searchTerm = e.target.value.toLowerCase();
+        renderProfiles();
+      });
+
+      // 프로파일 렌더링
+      function renderProfiles() {
+        list.innerHTML = "";
+        const filtered = PROFILES.filter((p) => {
+          const matchTag = currentTag === "All" || p.tag === currentTag;
+          const matchSearch =
+            !searchTerm ||
+            p.name.toLowerCase().includes(searchTerm) ||
+            (p.description && p.description.toLowerCase().includes(searchTerm));
+          return matchTag && matchSearch;
+        });
+
+        if (filtered.length === 0) {
+          list.innerHTML =
+            '<p style="grid-column: 1/-1; text-align: center; opacity: 0.6;">검색 결과가 없습니다.</p>';
+        } else {
+          filtered.forEach((p) => list.appendChild(card(p)));
+        }
+      }
 
       function card(p) {
         const el = document.createElement("div");
@@ -226,7 +341,8 @@
         );
       }
 
-      PROFILES.forEach((p) => list.appendChild(card(p)));
+      // 초기 렌더링
+      renderProfiles();
     </script>
   </body>
 </html>
