@@ -286,6 +286,34 @@
               DUN (다이얼업 네트워킹/테더링)
             </label>
           </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="apnTypeIms" />
+              IMS (IP 멀티미디어 서비스/VoLTE)
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="apnTypeRcs" />
+              RCS (리치 커뮤니케이션 서비스)
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="apnTypeXcap" />
+              XCAP (XML 설정 액세스 프로토콜)
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="apnTypeCbs" />
+              CBS (셀 브로드캐스트 서비스)
+            </label>
+          </div>
         </div>
 
         <div class="auth-section">
@@ -398,12 +426,20 @@
         const apnTypeMms = document.getElementById("apnTypeMms").checked;
         const apnTypeSupl = document.getElementById("apnTypeSupl").checked;
         const apnTypeDun = document.getElementById("apnTypeDun").checked;
+        const apnTypeIms = document.getElementById("apnTypeIms").checked;
+        const apnTypeRcs = document.getElementById("apnTypeRcs").checked;
+        const apnTypeXcap = document.getElementById("apnTypeXcap").checked;
+        const apnTypeCbs = document.getElementById("apnTypeCbs").checked;
 
         let defaultProtocolMask = 0;
         if (apnTypeDefault) defaultProtocolMask |= 1; // Default
         if (apnTypeMms) defaultProtocolMask |= 2; // MMS
         if (apnTypeSupl) defaultProtocolMask |= 4; // SUPL
         if (apnTypeDun) defaultProtocolMask |= 8; // DUN
+        if (apnTypeIms) defaultProtocolMask |= 64; // IMS
+        if (apnTypeCbs) defaultProtocolMask |= 128; // CBS
+        if (apnTypeXcap) defaultProtocolMask |= 512; // XCAP
+        if (apnTypeRcs) defaultProtocolMask |= 1024; // RCS
 
         // UUID 생성 (간단한 버전)
         const uuid = generateUUID();
