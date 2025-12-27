@@ -564,7 +564,7 @@
             <key>PayloadDescription</key>
             <string>${escapeXml(profileName)} APN 설정</string>
             <key>PayloadDisplayName</key>
-            <string>${escapeXml(profileName)}</string>
+            <string>Advanced Settings</string>
             <key>PayloadIdentifier</key>
             <string>com.apn.${payloadUUID}</string>
             <key>PayloadType</key>
@@ -603,9 +603,9 @@
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
-        alert(
-          "프로파일이 생성되었습니다!\n\n설정 앱 → 일반 → VPN 및 기기 관리에서 설치하세요."
-        );
+        // alert(
+        //   "프로파일이 생성되었습니다!\n\n설정 앱 → 일반 → VPN 및 기기 관리에서 설치하세요."
+        // );
       }
 
       // UUID 생성 함수
