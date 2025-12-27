@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>APN 프로파일 생성기</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+        margin: 0;
+      }
+      .wrap {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+      h1 {
+        font-size: 22px;
+        margin: 0 0 10px;
+      }
+      p {
+        margin: 8px 0;
+        line-height: 1.5;
+        opacity: 0.9;
+      }
+      .form-section {
+        margin-top: 24px;
+      }
+      .form-group {
+        margin-bottom: 16px;
+      }
+      label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 6px;
+        font-size: 14px;
+      }
+      .label-desc {
+        font-size: 12px;
+        opacity: 0.75;
+        font-weight: 400;
+        margin-top: 2px;
+      }
+      input[type="text"],
+      input[type="number"],
+      select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid rgba(127, 127, 127, 0.35);
+        border-radius: 12px;
+        font-size: 14px;
+        font-family: inherit;
+        background: transparent;
+        box-sizing: border-box;
+      }
+      input[type="checkbox"] {
+        margin-right: 6px;
+      }
+      .btn {
+        display: inline-block;
+        padding: 12px 20px;
+        border-radius: 12px;
+        text-decoration: none;
+        border: 1px solid rgba(127, 127, 127, 0.35);
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        font-family: inherit;
+        background: transparent;
+      }
+      .btn.primary {
+        background: rgba(0, 122, 255, 0.18);
+        border-color: rgba(0, 122, 255, 0.4);
+      }
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .note {
+        margin-top: 18px;
+        padding: 12px;
+        border-radius: 14px;
+        background: rgba(127, 127, 127, 0.12);
+        font-size: 14px;
+      }
+      .note strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+      .auth-section {
+        border: 1px solid rgba(127, 127, 127, 0.25);
+        border-radius: 14px;
+        padding: 14px;
+        margin-top: 12px;
+        background: rgba(0, 0, 0, 0.02);
+      }
+      @media (prefers-color-scheme: dark) {
+        .auth-section {
+          background: rgba(255, 255, 255, 0.02);
+        }
+      }
+      footer {
+        margin-top: 24px;
+        padding-top: 16px;
+        border-top: 1px solid rgba(127, 127, 127, 0.15);
+        font-size: 12px;
+        opacity: 0.7;
+        text-align: center;
+      }
+      .back-link {
+        display: inline-block;
+        margin-bottom: 16px;
+        color: rgba(0, 122, 255, 1);
+        text-decoration: none;
+        font-size: 14px;
+      }
+      .back-link:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <a href="./" class="back-link">← 프로파일 목록으로</a>
+
+      <h1>APN 프로파일 생성기</h1>
+      <p>
+        모바일 데이터 통신을 위한 APN 설정 프로파일을 생성합니다. iPhone/iPad
+        Safari에서 생성 후 바로 설치할 수 있습니다.
+      </p>
+
+      <div class="note">
+        <strong>📱 사용 방법</strong>
+        1. 아래 양식에 통신사에서 제공한 APN 정보를 입력하세요.<br />
+        2. "프로파일 생성" 버튼을 누르면 .mobileconfig 파일이 다운로드됩니다.<br />
+        3. 설정 앱 → 일반 → VPN 및 기기 관리에서 프로파일을 설치하세요.
+      </div>
+
+      <form id="apnForm" class="form-section">
+        <div class="form-group">
+          <label>
+            프로파일 이름 *
+            <div class="label-desc">설정 앱에 표시될 이름입니다.</div>
+          </label>
+          <input
+            type="text"
+            id="profileName"
+            required
+            placeholder="예: 내 통신사 LTE 설정"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>
+            APN 주소 *
+            <div class="label-desc">
+              통신사에서 제공한 APN 주소 (예: internet.sktelecom.com)
+            </div>
+          </label>
+          <input
+            type="text"
+            id="apn"
+            required
+            placeholder="예: internet.sktelecom.com"
+          />
+        </div>
+
+        <div class="auth-section">
+          <h3 style="margin: 0 0 12px; font-size: 16px">
+            🌐 네트워크 식별자 (선택사항)
+          </h3>
+          <p style="font-size: 13px; opacity: 0.8; margin: 0 0 12px">
+            MCC/MNC는 통신사를 식별하는 코드입니다. 특정 통신사에서만 사용하도록
+            제한할 때 설정합니다.
+          </p>
+
+          <div class="form-group">
+            <label>
+              MCC (Mobile Country Code)
+              <div class="label-desc">
+                국가 코드 3자리 (한국: 450, 일본: 440, 441)
+              </div>
+            </label>
+            <input
+              type="text"
+              id="mcc"
+              maxlength="3"
+              placeholder="예: 450"
+              pattern="[0-9]{3}"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>
+              MNC (Mobile Network Code)
+              <div class="label-desc">
+                통신사 코드 2-3자리 (SKT: 05, KT: 08, LGU+: 06)
+              </div>
+            </label>
+            <input
+              type="text"
+              id="mnc"
+              maxlength="3"
+              placeholder="예: 05"
+              pattern="[0-9]{2,3}"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>
+            사용자 이름 (Username)
+            <div class="label-desc">선택사항. 필요한 경우에만 입력하세요.</div>
+          </label>
+          <input type="text" id="username" placeholder="선택사항" />
+        </div>
+
+        <div class="form-group">
+          <label>
+            비밀번호 (Password)
+            <div class="label-desc">선택사항. 필요한 경우에만 입력하세요.</div>
+          </label>
+          <input type="text" id="password" placeholder="선택사항" />
+        </div>
+
+        <div class="form-group">
+          <label>
+            프록시 서버
+            <div class="label-desc">
+              선택사항. 프록시를 사용하는 경우에만 입력하세요.
+            </div>
+          </label>
+          <input type="text" id="proxy" placeholder="예: proxy.example.com" />
+        </div>
+
+        <div class="form-group">
+          <label>
+            프록시 포트
+            <div class="label-desc">프록시 서버의 포트 번호</div>
+          </label>
+          <input type="number" id="proxyPort" placeholder="예: 8080" />
+        </div>
+
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="allowedProtocolMask" checked />
+            LTE 사용 허용
+          </label>
+        </div>
+
+        <div class="auth-section">
+          <h3 style="margin: 0 0 12px; font-size: 16px">🔄 APN 유형 선택</h3>
+          <p style="font-size: 13px; opacity: 0.8; margin: 0 0 12px">
+            이 APN을 어떤 용도로 사용할지 선택하세요. 여러 개 선택 가능합니다.
+          </p>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="apnTypeDefault" checked />
+              Default (일반 데이터 통신)
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="apnTypeMms" />
+              MMS (멀티미디어 메시지)
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="apnTypeSupl" />
+              SUPL (보조 위치 정보 서비스)
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="apnTypeDun" />
+              DUN (다이얼업 네트워킹/테더링)
+            </label>
+          </div>
+        </div>
+
+        <div class="auth-section">
+          <h3 style="margin: 0 0 12px; font-size: 16px">
+            📨 MMS 설정 (선택사항)
+          </h3>
+          <p style="font-size: 13px; opacity: 0.8; margin: 0 0 12px">
+            문자 메시지로 사진/동영상을 보내려면 MMS 설정이 필요합니다.
+          </p>
+
+          <div class="form-group">
+            <label>
+              MMSC (MMS Center URL)
+              <div class="label-desc">
+                예: http://mmsc.example.com 또는 http://192.168.1.1/mmsc
+              </div>
+            </label>
+            <input
+              type="text"
+              id="mmsc"
+              placeholder="예: http://mmsc.ktfwing.com:9082"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>
+              MMS Proxy 서버
+              <div class="label-desc">MMS 전송을 위한 프록시 서버 주소</div>
+            </label>
+            <input
+              type="text"
+              id="mmsProxy"
+              placeholder="예: mmsproxy.ktfwing.com"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>
+              MMS Proxy 포트
+              <div class="label-desc">일반적으로 80 또는 8080을 사용합니다</div>
+            </label>
+            <input type="number" id="mmsProxyPort" placeholder="예: 80" />
+          </div>
+        </div>
+
+        <div class="auth-section">
+          <div class="form-group">
+            <label>
+              인증 유형
+              <div class="label-desc">
+                대부분의 경우 CHAP 또는 PAP을 사용합니다.
+              </div>
+            </label>
+            <select id="authType">
+              <option value="CHAP">CHAP (권장)</option>
+              <option value="PAP">PAP</option>
+              <option value="None">없음</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 24px">
+          <button type="submit" class="btn primary">
+            프로파일 생성 및 다운로드
+          </button>
+        </div>
+      </form>
+
+      <div class="note" style="margin-top: 24px">
+        <strong>⚠️ 주의사항</strong>
+        • 통신사에서 제공한 정확한 APN 정보를 입력해주세요.<br />
+        • 잘못된 설정은 데이터 통신이 되지 않을 수 있습니다.<br />
+        • 프로파일 삭제는 설정 → 일반 → VPN 및 기기 관리에서 할 수 있습니다.
+      </div>
+
+      <footer>
+        <p>APN 프로파일 생성기 · 2025</p>
+      </footer>
+    </div>
+
+    <script>
+      const form = document.getElementById("apnForm");
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        generateProfile();
+      });
+
+      function generateProfile() {
+        // 폼 데이터 수집
+        const profileName = document.getElementById("profileName").value;
+        const apn = document.getElementById("apn").value;
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const proxy = document.getElementById("proxy").value;
+        const proxyPort = document.getElementById("proxyPort").value;
+        const mcc = document.getElementById("mcc").value;
+        const mnc = document.getElementById("mnc").value;
+        const mmsc = document.getElementById("mmsc").value;
+        const mmsProxy = document.getElementById("mmsProxy").value;
+        const mmsProxyPort = document.getElementById("mmsProxyPort").value;
+        const allowedProtocolMask = document.getElementById(
+          "allowedProtocolMask"
+        ).checked;
+        const authType = document.getElementById("authType").value;
+
+        // APN 유형 수집 및 비트마스크 계산
+        const apnTypeDefault =
+          document.getElementById("apnTypeDefault").checked;
+        const apnTypeMms = document.getElementById("apnTypeMms").checked;
+        const apnTypeSupl = document.getElementById("apnTypeSupl").checked;
+        const apnTypeDun = document.getElementById("apnTypeDun").checked;
+
+        let defaultProtocolMask = 0;
+        if (apnTypeDefault) defaultProtocolMask |= 1; // Default
+        if (apnTypeMms) defaultProtocolMask |= 2; // MMS
+        if (apnTypeSupl) defaultProtocolMask |= 4; // SUPL
+        if (apnTypeDun) defaultProtocolMask |= 8; // DUN
+
+        // UUID 생성 (간단한 버전)
+        const uuid = generateUUID();
+        const payloadUUID = generateUUID();
+
+        // mobileconfig XML 생성
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            <key>APNs</key>
+            <array>
+                <dict>
+                    <key>Name</key>
+                    <string>${escapeXml(profileName)}</string>
+                    <key>AuthenticationType</key>
+                    <string>${authType}</string>
+                    <key>APN</key>
+                    <string>${escapeXml(apn)}</string>${
+          username
+            ? `
+                    <key>Username</key>
+                    <string>${escapeXml(username)}</string>`
+            : ""
+        }${
+          password
+            ? `
+                    <key>Password</key>
+                    <string>${escapeXml(password)}</string>`
+            : ""
+        }${
+          proxy
+            ? `
+                    <key>ProxyServer</key>
+                    <string>${escapeXml(proxy)}</string>`
+            : ""
+        }${
+          proxyPort
+            ? `
+                    <key>ProxyPort</key>
+                    <integer>${parseInt(proxyPort)}</integer>`
+            : ""
+        }${
+          allowedProtocolMask
+            ? `
+                    <key>AllowedProtocolMask</key>
+                    <integer>3</integer>`
+            : ""
+        }${
+          defaultProtocolMask > 0
+            ? `
+                    <key>DefaultProtocolMask</key>
+                    <integer>${defaultProtocolMask}</integer>`
+            : ""
+        }${
+          mcc
+            ? `
+                    <key>MCC</key>
+                    <string>${escapeXml(mcc)}</string>`
+            : ""
+        }${
+          mnc
+            ? `
+                    <key>MNC</key>
+                    <string>${escapeXml(mnc)}</string>`
+            : ""
+        }${
+          mmsc
+            ? `
+                    <key>MMSC</key>
+                    <string>${escapeXml(mmsc)}</string>`
+            : ""
+        }${
+          mmsProxy
+            ? `
+                    <key>MMSProxyServer</key>
+                    <string>${escapeXml(mmsProxy)}</string>`
+            : ""
+        }${
+          mmsProxyPort
+            ? `
+                    <key>MMSProxyPort</key>
+                    <integer>${parseInt(mmsProxyPort)}</integer>`
+            : ""
+        }
+                </dict>
+            </array>
+            <key>PayloadDescription</key>
+            <string>${escapeXml(profileName)} APN 설정</string>
+            <key>PayloadDisplayName</key>
+            <string>${escapeXml(profileName)}</string>
+            <key>PayloadIdentifier</key>
+            <string>com.apn.${payloadUUID}</string>
+            <key>PayloadType</key>
+            <string>com.apple.cellular</string>
+            <key>PayloadUUID</key>
+            <string>${payloadUUID}</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+        </dict>
+    </array>
+    <key>PayloadDisplayName</key>
+    <string>${escapeXml(profileName)}</string>
+    <key>PayloadIdentifier</key>
+    <string>com.apn.profile.${uuid}</string>
+    <key>PayloadRemovalDisallowed</key>
+    <false/>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>${uuid}</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+</dict>
+</plist>`;
+
+        // 파일 다운로드
+        const blob = new Blob([xml], {
+          type: "application/x-apple-aspen-config",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${sanitizeFilename(profileName)}.mobileconfig`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        alert(
+          "프로파일이 생성되었습니다!\n\n설정 앱 → 일반 → VPN 및 기기 관리에서 설치하세요."
+        );
+      }
+
+      // UUID 생성 함수
+      function generateUUID() {
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+          /[xy]/g,
+          function (c) {
+            const r = (Math.random() * 16) | 0;
+            const v = c === "x" ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+          }
+        );
+      }
+
+      // XML 특수문자 이스케이프
+      function escapeXml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&apos;");
+      }
+
+      // 파일명 안전하게 만들기
+      function sanitizeFilename(str) {
+        return str
+          .replace(/[^a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ\s-]/g, "")
+          .replace(/\s+/g, "-")
+          .substring(0, 50);
+      }
+    </script>
+  </body>
+</html>

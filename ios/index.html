@@ -140,6 +140,24 @@
       <h1>iOS 프로파일 다운로드</h1>
       <p>iPhone/iPad에서 Safari로 열고 원하는 프로파일을 눌러 설치하세요.</p>
 
+      <div class="note">
+        <strong>🔧 APN 프로파일 직접 생성하기</strong>
+        <p style="margin: 8px 0 0 0">
+          원하는 통신사의 APN 설정이 없나요?
+          <a
+            href="./apn-generator.html"
+            style="
+              color: rgba(0, 122, 255, 1);
+              text-decoration: none;
+              font-weight: 700;
+            "
+          >
+            APN 생성기
+          </a>
+          에서 직접 만들어보세요!
+        </p>
+      </div>
+
       <div class="controls">
         <input
           type="text"
@@ -187,11 +205,25 @@
           tag: "Security",
         },
         {
+          name: "SKT LTE 프로파일",
+          file: "skt-lte.mobileconfig",
+          description: "SKT의 LTE 셀룰러 데이터 설정을 위한 구성 프로파일.",
+          version: "v1.0",
+          tag: "Korea APN",
+        },
+        {
+          name: "SKT 5G 프로파일",
+          file: "skt-5g.mobileconfig",
+          description: "SKT의 5G 셀룰러 데이터 설정을 위한 구성 프로파일.",
+          version: "v1.0",
+          tag: "Korea APN",
+        },
+        {
           name: "IIJmio 셀룰러 프로파일",
           file: "iijmio-cellular.mobileconfig",
           description: "IIJmio의 셀룰러 데이터 설정을 위한 구성 프로파일.",
           version: "v1.0",
-          tag: "Network",
+          tag: "Japan APN",
         },
         {
           name: "JP Smart Sim 프로파일",
@@ -199,7 +231,7 @@
           description:
             "JP Smart Sim의 셀룰러 데이터 설정을 위한 구성 프로파일.",
           version: "v1.0",
-          tag: "Network",
+          tag: "Japan APN",
         },
         {
           name: "SKT EAP SIM 프로파일(버전 1)",
@@ -220,28 +252,28 @@
           file: "sakuramobile-cellular.mobileconfig",
           description: "일본 사쿠라모바일 셀룰러 데이터 설정용 프로파일.",
           version: "v1.0",
-          tag: "Network",
+          tag: "Japan APN",
         },
         {
           name: "라쿠텐 모바일 셀룰러 프로파일",
           file: "rakuten_voice.mobileconfig",
           description: "일본 라쿠텐 모바일 음성/데이터 설정용 프로파일.",
           version: "v1.0",
-          tag: "Network",
+          tag: "Japan APN",
         },
         {
           name: "KABU& 모바일 셀룰러 프로파일",
           file: "kabuand.mobileconfig",
           description: "일본 KABU& MVNO 설정용 프로파일.",
           version: "v1.0",
-          tag: "Network",
+          tag: "Japan APN",
         },
         {
           name: "B 모바일 셀룰러 프로파일",
           file: "bmobileCelluar_ios.mobileconfig",
           description: "일본 B 모바일 셀룰러 데이터 설정용 프로파일.",
           version: "v1.0",
-          tag: "Network",
+          tag: "Japan APN",
         },
       ];
 

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            <key>APNs</key>
+            <array>
+                <dict>
+                    <key>Name</key>
+                    <string>SK Telecom LTE APN 프로파일</string>
+                    <key>AuthenticationType</key>
+                    <string>CHAP</string>
+                    <key>APN</key>
+                    <string>lte.sktelecom.com</string>
+                    <key>AllowedProtocolMask</key>
+                    <integer>3</integer>
+                    <key>MCC</key>
+                    <string>450</string>
+                    <key>MNC</key>
+                    <string>05</string>
+                    <key>MMSC</key>
+                    <string>http://omms.nate.com:9082/oma_mms</string>
+                    <key>MMSProxyServer</key>
+                    <string>lteoma.nate.com</string>
+                    <key>MMSProxyPort</key>
+                    <integer>9093</integer>
+                </dict>
+            </array>
+            <key>PayloadDescription</key>
+            <string>SK Telecom LTE APN 프로파일 APN 설정</string>
+            <key>PayloadDisplayName</key>
+            <string>SK Telecom LTE APN 프로파일</string>
+            <key>PayloadIdentifier</key>
+            <string>com.apn.d25df09d-314d-4ce7-bd0d-506ccb391258</string>
+            <key>PayloadType</key>
+            <string>com.apple.cellular</string>
+            <key>PayloadUUID</key>
+            <string>d25df09d-314d-4ce7-bd0d-506ccb391258</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+        </dict>
+    </array>
+    <key>PayloadDisplayName</key>
+    <string>SK Telecom LTE APN 프로파일</string>
+    <key>PayloadIdentifier</key>
+    <string>com.apn.profile.1ef0d36f-7f6f-4f88-857e-54e5e0d260fc</string>
+    <key>PayloadRemovalDisallowed</key>
+    <false/>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>1ef0d36f-7f6f-4f88-857e-54e5e0d260fc</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+</dict>
+</plist>
