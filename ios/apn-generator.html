@@ -479,6 +479,61 @@
                 <string>${escapeXml(password)}</string>`
                     : ""
                 }
+                    ${
+                      proxy
+                        ? `
+                    <key>ProxyServer</key>
+                    <string>${escapeXml(proxy)}</string>`
+                        : ""
+                    }${
+          proxyPort
+            ? `
+                                <key>ProxyPort</key>
+                                <integer>${parseInt(proxyPort)}</integer>`
+            : ""
+        }${
+          allowedProtocolMask
+            ? `
+                                <key>AllowedProtocolMask</key>
+                                <integer>3</integer>`
+            : ""
+        }${
+          defaultProtocolMask > 0
+            ? `
+                                <key>DefaultProtocolMask</key>
+                                <integer>${defaultProtocolMask}</integer>`
+            : ""
+        }${
+          mcc
+            ? `
+                                <key>MCC</key>
+                                <string>${escapeXml(mcc)}</string>`
+            : ""
+        }${
+          mnc
+            ? `
+                                <key>MNC</key>
+                                <string>${escapeXml(mnc)}</string>`
+            : ""
+        }${
+          mmsc
+            ? `
+                                <key>MMSC</key>
+                                <string>${escapeXml(mmsc)}</string>`
+            : ""
+        }${
+          mmsProxy
+            ? `
+                                <key>MMSProxyServer</key>
+                                <string>${escapeXml(mmsProxy)}</string>`
+            : ""
+        }${
+          mmsProxyPort
+            ? `
+                                <key>MMSProxyPort</key>
+                                <integer>${parseInt(mmsProxyPort)}</integer>`
+            : ""
+        }
             </dict>
             <key>APNs</key>
             <array>
