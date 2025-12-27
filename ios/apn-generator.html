@@ -456,7 +456,7 @@
             <key>AttachAPN</key>
             <dict>
                 <key>Name</key>
-                <string>${escapeXml(profileName)}</string>
+                <string>${escapeXml(apn)}</string>
                 ${
                   authType !== "None"
                     ? `
@@ -484,7 +484,7 @@
             <array>
                 <dict>
                     <key>Name</key>
-                    <string>${escapeXml(profileName)}</string>${
+                    <string>${escapeXml(apn)}</string>${
           authType === "None"
             ? ""
             : `
@@ -492,14 +492,13 @@
                     <string>${authType}</string>
                     `
         }
-                    <key>APN</key>
-                    <string>${escapeXml(apn)}</string>${
-          username
-            ? `
-                    <key>Username</key>
-                    <string>${escapeXml(username)}</string>`
-            : ""
-        }${
+            ${
+              username
+                ? `
+                                <key>Username</key>
+                                <string>${escapeXml(username)}</string>`
+                : ""
+            }${
           password
             ? `
                     <key>Password</key>
