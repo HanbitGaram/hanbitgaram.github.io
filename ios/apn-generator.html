@@ -453,6 +453,33 @@
     <key>PayloadContent</key>
     <array>
         <dict>
+            <key>AttachAPN</key>
+            <dict>
+                <key>Name</key>
+                <string>${escapeXml(profileName)}</string>
+                ${
+                  authType !== "None"
+                    ? `
+                <key>AuthenticationType</key>
+                <string>${authType}</string>
+                `
+                    : ""
+                }
+                ${
+                  username
+                    ? `
+                <key>Username</key>
+                <string>${escapeXml(username)}</string>`
+                    : ""
+                }
+                ${
+                  password
+                    ? `
+                <key>Password</key>
+                <string>${escapeXml(password)}</string>`
+                    : ""
+                }
+            </dict>
             <key>APNs</key>
             <array>
                 <dict>
