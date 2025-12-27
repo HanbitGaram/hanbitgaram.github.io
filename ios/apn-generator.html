@@ -457,9 +457,14 @@
             <array>
                 <dict>
                     <key>Name</key>
-                    <string>${escapeXml(profileName)}</string>
+                    <string>${escapeXml(profileName)}</string>${
+          authType === "None"
+            ? ""
+            : `
                     <key>AuthenticationType</key>
                     <string>${authType}</string>
+                    `
+        }
                     <key>APN</key>
                     <string>${escapeXml(apn)}</string>${
           username
