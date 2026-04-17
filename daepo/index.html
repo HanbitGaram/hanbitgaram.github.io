@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>번호 뽑기 게임</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="game-shell">
+      <section class="sky">
+        <div class="cloud cloud-left"></div>
+        <div class="cloud cloud-right"></div>
+
+        <header class="title-wrap">
+          <h1>番号抽選</h1>
+          <p class="subtitle">どの番号が出るでしょうか〜？<br />어떤 번호가 뽑힐까요~?</p>
+        </header>
+
+        <section class="history-panel" aria-label="뽑은 번호 목록">
+          <div class="history-header">
+            <h2>抽選番号(뽑은 번호)</h2>
+            <p><span id="draw-count">0</span> / <span id="max-count">0</span></p>
+          </div>
+          <div id="history-list" class="history-list"></div>
+        </section>
+
+        <section class="result-area" aria-live="polite">
+          <div id="balloon" class="balloon hidden">
+            <span id="balloon-number" class="balloon-number">0</span>
+            <span id="balloon-order" class="balloon-order">1番目</span>
+          </div>
+          <p id="guide-text" class="guide-text" style="text-align:center;">
+            下の大砲ボタンを押して番号を引いてください。
+        </p>
+        </section>
+
+        <div class="cannon-zone">
+          <div class="cannon-shadow"></div>
+          <div class="cannon">
+            <div class="cannon-top"></div>
+            <button id="draw-button" class="draw-button" type="button" aria-label="번호 뽑기"></button>
+          </div>
+        </div>
+
+        <button id="reset-button" class="reset-link" type="button">Reset</button>
+      </section>
+
+      <div id="setup-modal" class="modal-overlay">
+        <section class="modal-card" aria-labelledby="setup-title">
+          <h2 id="setup-title">
+            最後の番号は何番ですか？
+            <div style="font-size:0.7em">마지막 번호가 몇 번인가요?</div>
+        </h2>
+          <form id="setup-form" class="setup-form">
+            <label class="number-field" for="max-number">
+              <input id="max-number" name="max-number" type="number" min="1" max="999" value="50" required />
+            </label>
+            <button class="start-button" type="submit" aria-label="게임 시작">↵</button>
+          </form>
+          <p id="setup-error" class="setup-error" role="alert"></p>
+        </section>
+      </div>
+
+      <div id="game-over-modal" class="modal-overlay hidden">
+        <section class="modal-card game-over-card" aria-labelledby="game-over-title">
+          <h2 id="game-over-title">終了！（종료!）</h2>
+          <p id="game-over-text">すべての番号を抽選しました！<br />모든 번호를 다 뽑았습니다.</p>
+          <button id="restart-button" class="restart-button" type="button">再スタート<br />처음부터 다시</button>
+        </section>
+      </div>
+    </main>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
