@@ -134,7 +134,10 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
           <select id="lang"><option value="ko" selected>한국어</option><option value="en">English</option><option value="ja">日本語</option></select></div>
         <div class="item"><label for="level">훼손 대비</label>
           <select id="level"><option value="L">낮음 (약 6% 복구)</option><option value="M" selected>보통 (약 12% 복구)</option><option value="H">높음 (약 18% 복구)</option></select></div>
-        <div class="item" style="display:none"><label for="mark">가운데 SORI CODE 표시</label><input type="checkbox" class="sw" id="mark" checked></div>
+        <div class="item" style="display:none"><label for="mark">가운데 SORI CODE 표시</label><input type="checkbox" class="sw" id="mark"></div>
+        <div class="item"><label for="tab">이름표</label><input type="checkbox" class="sw" id="tab" checked></div>
+        <div class="item"><label for="dots">점 모양</label>
+          <select id="dots"><option value="round" selected>둥근 점</option><option value="square">네모</option></select></div>
       </div>
 
       <div id="made" class="screen">
@@ -195,6 +198,8 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
         <div class="stack"><b>테두리</b><span>바깥 한 줄은 모두 검은 칸입니다. 판독기는 이 사각 테두리로 코드를 찾고 기울기를 바로잡습니다.</span></div>
         <div class="stack"><b>눈금</b><span>테두리 바로 안쪽 줄에서 위쪽과 왼쪽은 검정과 흰색이 번갈아 나오고, 아래쪽과 오른쪽은 흰색입니다. 칸 수와 방향을 알려 줍니다.</span></div>
         <div class="stack"><b>크기</b><span>한 변 24칸부터 176칸까지 4칸 단위로 39가지입니다. 둘레에 흰 여백 4칸 이상이 필요합니다.</span></div>
+        <div class="stack"><b>점 모양 (선택)</b><span>안쪽 칸은 네모 대신 지름이 칸의 88%인 둥근 점으로 그려도 됩니다. 바깥 테두리 한 줄은 반드시 이어진 선이어야 합니다. 판독기는 칸 가운데를 읽으므로 두 모양을 똑같이 읽습니다.</span></div>
+        <div class="stack"><b>이름표 (선택)</b><span>위쪽 테두리 바깥 왼쪽에 SORICODE 이름표를 테두리에서 1.5칸 띄워 둘 수 있습니다. 데이터는 담지 않습니다. 판독기는 테두리와 떨어진 글자를 무시하고, 한 변에서 바깥으로 튀어나온 부분이 있어도 남은 테두리로 그 변을 찾습니다.</span></div>
         <div class="stack"><b>가운데 표시 (선택)</b><span>코드 한가운데 세로 2×round(9N/100)칸, 가로는 그 2배인 자리는 데이터를 넣지 않고 비워 두어 SORI CODE 표시를 그립니다. 형식 정보의 한 비트가 이 자리를 비웠는지 알려 줍니다.</span></div>
         <div class="stack"><b>데이터</b><span>안쪽 (N−4)×(N−4)칸에 왼쪽 위부터 한 줄씩, 가운데 표시 자리는 건너뛰며 채웁니다. 한 칸이 1비트이고 검정이 1입니다.</span></div>
       </div>
@@ -205,7 +210,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
         <div class="stack"><b>오류 정정</b><span>GF(256) 리드-솔로몬 부호(원시다항식 <code>0x11D</code>)를 블록당 255바이트 이하로 나누어 쓰고 블록끼리 번갈아 배치합니다. 패리티 비율은 12.5%, 25%, 37.5%입니다.</span></div>
         <div class="stack"><b>내용</b><span>방식 1바이트(0은 UTF-8, 1은 DEFLATE 압축), 언어 2바이트(ISO 639-1), 길이 3바이트, 본문, CRC-32 순서입니다.</span></div>
       </div>
-      <p class="cap">크기별 담는 양 (훼손 대비 보통, 가운데 표시 있음, 한글 압축 전)</p>
+      <p class="cap">크기별 담는 양 (훼손 대비 보통, 가운데 표시 없음, 한글 압축 전)</p>
       <div class="group" id="capRows"></div>
       <p class="foot">긴 글은 압축되어 표보다 더 많이 들어갑니다. 판독 기능은 기울임, 흐림, 잡음, 일부 가림을 넣은 합성 사진으로 시험했고 실제 휴대폰 사진으로는 아직 충분히 시험하지 않았습니다. 규격과 코드는 누구나 자유롭게 쓰고 고칠 수 있도록 CC0 공개를 전제로 작성했습니다.</p>
     </section>
@@ -602,20 +607,69 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     return { lab: lab, comps: comps };
   }
 
-  function lineFit(px, py, a, b, tol) {
-    var dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
-    if (len < 1) return null;
-    var ux = dx / len, uy = dy / len, n = 0, sx = 0, sy = 0, sxx = 0, syy = 0, sxy = 0;
-    for (var i = 0; i < px.length; i++) {
-      var rx = px[i] - a.x, ry = py[i] - a.y, t = (rx * ux + ry * uy) / len;
-      if (t < 0.08 || t > 0.92) continue;
-      if (Math.abs(rx * uy - ry * ux) > tol) continue;
-      n++; sx += px[i]; sy += py[i]; sxx += px[i] * px[i]; syy += py[i] * py[i]; sxy += px[i] * py[i];
+  function fitPoints(px, py, list) {
+    var n = list.length, sx = 0, sy = 0, sxx = 0, syy = 0, sxy = 0;
+    for (var i = 0; i < n; i++) {
+      var j = list[i];
+      sx += px[j]; sy += py[j]; sxx += px[j] * px[j]; syy += py[j] * py[j]; sxy += px[j] * py[j];
     }
-    if (n < 8) return null;
     var mx = sx / n, my = sy / n;
     var ang = 0.5 * Math.atan2(2 * (sxy / n - mx * my), (sxx / n - mx * mx) - (syy / n - my * my));
     return { x: mx, y: my, dx: Math.cos(ang), dy: Math.sin(ang) };
+  }
+  function lineDist(l, x, y) { return Math.abs((x - l.x) * l.dy - (y - l.y) * l.dx); }
+  function near(px, py, list, l, tol) {
+    return list.filter(function (j) { return lineDist(l, px[j], py[j]) <= tol; });
+  }
+  /* 점 목록(변을 따라 정렬됨)에서 가장 많은 점이 올라타는 직선을 찾는다 */
+  function bestLine(px, py, act, ux, uy, tol) {
+    var m = act.length, bestCnt = 0, best = null;
+    var step = Math.max(1, Math.floor(m / 60)), gap = Math.max(3, Math.floor(m / 5));
+    for (var i = 0; i + gap < m; i += step) {
+      var p = act[i], q = act[i + gap], lx = px[q] - px[p], ly = py[q] - py[p], ll = Math.hypot(lx, ly);
+      if (ll < 3) continue;
+      lx /= ll; ly /= ll;
+      if (Math.abs(lx * ux + ly * uy) < 0.95) continue;
+      var cnt = 0;
+      for (var k = 0; k < m; k++) {
+        var j = act[k];
+        if (Math.abs((px[j] - px[p]) * ly - (py[j] - py[p]) * lx) <= tol) cnt++;
+      }
+      if (cnt > bestCnt) { bestCnt = cnt; best = { x: px[p], y: py[p], dx: lx, dy: ly }; }
+    }
+    if (!best) return null;
+    var inl = near(px, py, act, best, 2.5 * tol);
+    if (inl.length >= 8) { best = fitPoints(px, py, inl); inl = near(px, py, act, best, 1.5 * tol); }
+    if (inl.length >= 8) { best = fitPoints(px, py, inl); inl = near(px, py, act, best, 1.5 * tol); }
+    return { line: best, count: inl.length };
+  }
+  /* 한 변의 직선. 바깥으로 이름표 탭이 튀어나온 변에는 평행한 직선이 둘 생기므로 중심에 가까운 안쪽 것을 고른다. */
+  function sideLine(px, py, a, b, gx, gy) {
+    var dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
+    if (len < 8) return null;
+    var ux = dx / len, uy = dy / len, pts = [];
+    for (var i = 0; i < px.length; i++) {
+      var rx = px[i] - a.x, ry = py[i] - a.y, t = (rx * ux + ry * uy) / len;
+      if (t < 0.04 || t > 0.96 || Math.abs(rx * uy - ry * ux) > 0.18 * len) continue;
+      pts.push({ i: i, t: t });
+    }
+    if (pts.length < 12) return null;
+    pts.sort(function (p, q) { return p.t - q.t; });
+    var act = pts.map(function (p) { return p.i; }), n = act.length, tol = Math.max(1.5, 0.006 * len);
+    var b1 = bestLine(px, py, act, ux, uy, tol);
+    if (!b1) return null;
+    var chosen = b1.line, tab = false;
+    var rest = act.filter(function (j) { return lineDist(b1.line, px[j], py[j]) > 3 * tol; });
+    if (rest.length >= 0.2 * n) {
+      var b2 = bestLine(px, py, rest, ux, uy, tol);
+      if (b2 && b2.count >= 0.18 * n && Math.abs(b2.line.dx * b1.line.dx + b2.line.dy * b1.line.dy) > 0.99 &&
+          lineDist(b1.line, b2.line.x, b2.line.y) >= 0.03 * len) {
+        tab = true;
+        if (lineDist(b2.line, gx, gy) < lineDist(b1.line, gx, gy)) chosen = b2.line;
+      }
+    }
+    var inl = near(px, py, act, chosen, tab ? 1.5 * tol : Math.max(2, 0.012 * len));
+    return inl.length >= 8 ? fitPoints(px, py, inl) : chosen;
   }
   function intersect(l1, l2) {
     var den = l1.dx * l2.dy - l1.dy * l2.dx;
@@ -669,22 +723,17 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     var area = 0;
     for (i = 0; i < 4; i++) { var a = quad[i], b = quad[(i + 1) % 4]; area += a.x * b.y - b.x * a.y; }
     if (area < 0) quad = [quad[0], quad[3], quad[2], quad[1]];
-    // 네 변을 직선으로 맞춰 모서리를 정밀하게 다시 구한다
-    for (var pass = 0; pass < 2; pass++) {
-      var lines = [];
-      for (i = 0; i < 4; i++) {
-        var a2 = quad[i], b2 = quad[(i + 1) % 4], len = Math.hypot(b2.x - a2.x, b2.y - a2.y);
-        lines.push(lineFit(px, py, a2, b2, pass === 0 ? Math.max(3, 0.04 * len) : Math.max(2, 0.012 * len)));
-      }
-      var nq = [];
-      for (i = 0; i < 4; i++) {
-        var l1 = lines[(i + 3) % 4], l2 = lines[i], pt = (l1 && l2) ? intersect(l1, l2) : null;
-        var side = Math.hypot(quad[(i + 1) % 4].x - quad[i].x, quad[(i + 1) % 4].y - quad[i].y);
-        if (pt && Math.hypot(pt.x - quad[i].x, pt.y - quad[i].y) < 0.2 * side) nq.push(pt);
-        else nq.push(quad[i]);
-      }
-      quad = nq;
+    // 네 변을 직선으로 맞춰 모서리를 정밀하게 다시 구한다 (탭이 있는 변은 안쪽 직선 사용)
+    var lines = [];
+    for (i = 0; i < 4; i++) lines.push(sideLine(px, py, quad[i], quad[(i + 1) % 4], mx, my));
+    var nq = [];
+    for (i = 0; i < 4; i++) {
+      var l1 = lines[(i + 3) % 4], l2 = lines[i], pt = (l1 && l2) ? intersect(l1, l2) : null;
+      var side = Math.hypot(quad[(i + 1) % 4].x - quad[i].x, quad[(i + 1) % 4].y - quad[i].y);
+      if (pt && Math.hypot(pt.x - quad[i].x, pt.y - quad[i].y) < 0.3 * side) nq.push(pt);
+      else nq.push(quad[i]);
     }
+    quad = nq;
     // 이진화된 테두리의 바깥 가장자리는 픽셀 중심 기준이므로 반 픽셀 바깥으로 보정
     var qx = (quad[0].x + quad[1].x + quad[2].x + quad[3].x) / 4, qy = (quad[0].y + quad[1].y + quad[2].y + quad[3].y) / 4;
     for (i = 0; i < 4; i++) {
@@ -711,24 +760,37 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     var mpx = (Math.hypot(q1.x - q0.x, q1.y - q0.y) + Math.hypot(q2.x - q3.x, q2.y - q3.y)) / 2 / N;
     var pr = Math.max(0, Math.min(4, Math.floor(mpx / 4)));
     var wr = Math.max(6, Math.round(mpx * 4));
-    return function (r, c) {
+    var get = function (r, c) {
       var u = (c + 0.5) / N, v = (r + 0.5) / N, w = Hm.g * u + Hm.h * v + 1;
       var x = Math.round((Hm.a * u + Hm.b * v + Hm.c) / w), y = Math.round((Hm.d * u + Hm.e * v + Hm.f) / w);
       if (x < 0 || y < 0 || x >= W || y >= H) return 0;
       return boxMean(I, W, H, x, y, pr) < boxMean(I, W, H, x, y, wr) ? 1 : 0;
     };
+    /* 칸 가운데의 밝기 (0 검정 ~ 255 흰색) */
+    get.gray = function (r, c) {
+      var u = (c + 0.5) / N, v = (r + 0.5) / N, w = Hm.g * u + Hm.h * v + 1;
+      var x = Math.round((Hm.a * u + Hm.b * v + Hm.c) / w), y = Math.round((Hm.d * u + Hm.e * v + Hm.f) / w);
+      if (x < 0 || y < 0 || x >= W || y >= H) return 255;
+      return boxMean(I, W, H, x, y, pr);
+    };
+    return get;
   }
 
+  /* 눈금 점수. 주변 평균과 비교하지 않고 이웃 칸끼리 비교한다:
+     위·왼쪽 눈금은 검은 칸이 양옆 칸보다 어둡고 흰 칸이 양옆보다 밝아야 하고,
+     아래·오른쪽 흰 줄은 바로 바깥의 테두리 칸보다 밝아야 한다. 흐린 사진이나 둥근 점 코드에서도 잘 버틴다. */
   function timingScore(get, N) {
-    var ok = 0, tot = 0, k;
+    var ok = 0, tot = 0, k, top = [], left = [];
+    for (k = 0; k < N; k++) { top.push(get.gray(1, k)); left.push(get.gray(k, 1)); }
     for (k = 1; k <= N - 2; k++) {
-      ok += (get(1, k) === (k & 1)) ? 1 : 0;       // 위
-      ok += (get(k, 1) === (k & 1)) ? 1 : 0;       // 왼쪽
+      var at = (top[k - 1] + top[k + 1]) / 2, al = (left[k - 1] + left[k + 1]) / 2;
+      if (k & 1) { ok += top[k] < at - 1 ? 1 : 0; ok += left[k] < al - 1 ? 1 : 0; }
+      else { ok += top[k] > at + 1 ? 1 : 0; ok += left[k] > al + 1 ? 1 : 0; }
       tot += 2;
     }
     for (k = 2; k <= N - 2; k++) {
-      ok += get(N - 2, k) === 0 ? 1 : 0;           // 아래(흰색)
-      ok += get(k, N - 2) === 0 ? 1 : 0;           // 오른쪽(흰색)
+      ok += get.gray(N - 2, k) > get.gray(N - 1, k) + 2 ? 1 : 0;   // 아래 흰 줄
+      ok += get.gray(k, N - 2) > get.gray(k, N - 1) + 2 ? 1 : 0;   // 오른쪽 흰 줄
       tot += 2;
     }
     return ok / tot;
@@ -843,15 +905,15 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     var total = (MARK_TW + MARK_GAP + iw) * c, sx = QUIET + m.x + m.w / 2 - total / 2, cy = QUIET + m.y + m.h / 2;
     return { c: c, tx: sx, top: cy - th * c / 2, ix: sx + (MARK_TW + MARK_GAP) * c, ih: MARK_ICON * c, cy: cy };
   }
-  /* 표시를 이루는 도형 목록. d는 SVG 경로, sw가 있으면 그 굵기의 선, 없으면 채움 */
-  function markShapes(L) {
-    var c = L.c, sw = 0.2 * c, out = [], o = 0, b = 0;
-    function f3(n) { return (Math.round(n * 1000) / 1000).toString(); }
-    function X(v) { return f3(L.tx + (o + v) * c); }
-    function Y(v) { return f3(L.top + (b + v) * c); }
+  /* ---- 도형 ---- 목록의 각 항목: d는 SVG 경로. sw가 있으면 그 굵기의 검은 선, 없으면 채움(white면 흰색) */
+  function f3(n) { return (Math.round(n * 1000) / 1000).toString(); }
+  /* 낱말을 글자 도형으로 넣는다. (x, y)는 왼쪽 위, c는 글자 높이. 낱말 너비를 돌려준다. */
+  function wordShapes(out, word, x, y, c) {
+    var sw = 0.2 * c, o = 0;
+    function X(v) { return f3(x + (o + v) * c); }
+    function Y(v) { return f3(y + v * c); }
     function R(v) { return f3(v * c); }
     function line(d) { out.push({ sw: sw, d: d }); }
-    /* 글자마다 도형을 넣고 글자 너비를 돌려준다 (글자 높이 = 1) */
     var G = {
       S: function () {
         line('M' + X(0.565) + ' ' + Y(0.185) + 'A' + R(0.25) + ' ' + R(0.2) + ' 0 1 0 ' + X(0.36) + ' ' + Y(0.5) +
@@ -885,19 +947,44 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
         return 0.6;
       }
     };
-    ['SORI', 'CODE'].forEach(function (word, li) {
-      o = 0; b = li * (1 + MARK_LG);
-      word.split('').forEach(function (ch) { o += G[ch]() + 0.1; });
-    });
-    // 스피커
-    var x0 = L.ix, h = L.ih, y0 = L.cy - h / 2, cx = x0 + 0.56 * h, cy = y0 + 0.5 * h;
+    word.split('').forEach(function (ch) { o += G[ch]() + 0.1; });
+    return (o - 0.1) * c;
+  }
+  /* 스피커. (x0, y0)는 왼쪽 위, h는 높이 (너비는 약 1.08h) */
+  function speakerShapes(out, x0, y0, h) {
+    var cx = x0 + 0.56 * h, cy = y0 + 0.5 * h;
     out.push({ d: 'M' + f3(x0) + ' ' + f3(y0 + 0.32 * h) + 'L' + f3(x0 + 0.24 * h) + ' ' + f3(y0 + 0.32 * h) + 'L' + f3(x0 + 0.54 * h) + ' ' + f3(y0 + 0.06 * h) +
       'L' + f3(x0 + 0.54 * h) + ' ' + f3(y0 + 0.94 * h) + 'L' + f3(x0 + 0.24 * h) + ' ' + f3(y0 + 0.68 * h) + 'L' + f3(x0) + ' ' + f3(y0 + 0.68 * h) + 'Z' });
     [0.26, 0.46].forEach(function (rr) {
       var dx = rr * h * Math.cos(0.7), dy = rr * h * Math.sin(0.7);
       out.push({ sw: 0.11 * h, round: true, d: 'M' + f3(cx + dx) + ' ' + f3(cy - dy) + 'A' + f3(rr * h) + ' ' + f3(rr * h) + ' 0 0 1 ' + f3(cx + dx) + ' ' + f3(cy + dy) });
     });
+  }
+  /* 가운데 표시: SORI / CODE 두 줄 + 스피커 */
+  function markShapes(L) {
+    var out = [];
+    wordShapes(out, 'SORI', L.tx, L.top, L.c);
+    wordShapes(out, 'CODE', L.tx, L.top + (1 + MARK_LG) * L.c, L.c);
+    speakerShapes(out, L.ix, L.cy - L.ih / 2, L.ih);
     return out;
+  }
+  /* 이름표: 위쪽 테두리 바깥 왼쪽에 SORICODE와 스피커를 외곽선 없이 둔다.
+     코드 테두리와는 LABEL_GAP칸 띄워서 판독기가 테두리와 한 덩어리로 보지 않게 한다. */
+  var LABEL_GAP = 1.5;
+  function tabGeom(code) {
+    if (!$('tab').checked) return null;
+    var c = 0.065 * code.N, bh = 1.12 * c;
+    return { c: c, bh: bh, extra: Math.ceil(bh + LABEL_GAP) };
+  }
+  function tabShapes(g) {
+    var out = [], x0 = QUIET, cy = QUIET - LABEL_GAP - g.bh / 2;
+    var w = wordShapes(out, 'SORICODE', x0, cy - g.c / 2, g.c);
+    speakerShapes(out, x0 + w + 0.22 * g.c, cy - g.bh / 2, g.bh);
+    return out;
+  }
+  function allShapes(code) {
+    var L = markLayout(code), g = tabGeom(code);
+    return (g ? tabShapes(g) : []).concat(L ? markShapes(L) : []);
   }
   function eachRun(code, fn) {
     var N = code.N, m = code.matrix;
@@ -911,42 +998,59 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
       }
     }
   }
-  function toCanvas(code, scale) {
-    var cv = document.createElement('canvas'), k = scale, size = (code.N + 2 * QUIET) * k;
-    cv.width = size; cv.height = size;
-    var ctx = cv.getContext('2d');
-    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, size, size);
-    ctx.fillStyle = '#000000';
-    eachRun(code, function (r, c0, len) { ctx.fillRect((QUIET + c0) * k, (QUIET + r) * k, len * k, k); });
-    var L = markLayout(code);
-    if (L) {
-      ctx.save(); ctx.scale(k, k);
-      ctx.strokeStyle = '#000000'; ctx.fillStyle = '#000000'; ctx.lineJoin = 'miter';
-      markShapes(L).forEach(function (sh) {
-        var p = new Path2D(sh.d);
-        if (sh.sw) { ctx.lineWidth = sh.sw; ctx.lineCap = sh.round ? 'round' : 'butt'; ctx.stroke(p); }
-        else ctx.fill(p);
-      });
-      ctx.restore();
+  /* 칸 그림 경로. 네모: 옆으로 이어진 칸을 한 사각형으로 묶는다.
+     둥근 점: 바깥 테두리는 이어진 선으로 두고(판독기가 이 선으로 코드를 찾는다) 안쪽 칸만 지름 DOT칸의 점으로 그린다.
+     점은 아주 짧은 선에 둥근 끝을 씌워 그린다. */
+  var DOT = 0.88;
+  function modulePaths(code) {
+    var N = code.N, m = code.matrix, Q = QUIET, sq = '', dots = '';
+    if ($('dots').value !== 'round') {
+      eachRun(code, function (r, c0, len) { sq += 'M' + (Q + c0) + ' ' + (Q + r) + 'h' + len + 'v1h-' + len + 'z'; });
+      return { square: sq, dots: '' };
     }
+    sq = 'M' + Q + ' ' + Q + 'h' + N + 'v' + N + 'h-' + N + 'zM' + (Q + 1) + ' ' + (Q + 1) + 'v' + (N - 2) + 'h' + (N - 2) + 'v-' + (N - 2) + 'z';
+    for (var r = 1; r < N - 1; r++)
+      for (var c = 1; c < N - 1; c++)
+        if (m[r * N + c]) dots += 'M' + (Q + c + 0.495) + ' ' + (Q + r + 0.5) + 'h.01';
+    return { square: sq, dots: dots };
+  }
+  /* 이름표가 있으면 그림 위쪽에 그 높이만큼(칸 단위로 올림) 자리를 더 둔다 */
+  function toCanvas(code, scale) {
+    var g = tabGeom(code), E = g ? g.extra : 0, k = scale;
+    var cv = document.createElement('canvas'), W = (code.N + 2 * QUIET) * k, H = (code.N + 2 * QUIET + E) * k;
+    cv.width = W; cv.height = H;
+    var ctx = cv.getContext('2d');
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
+    ctx.save(); ctx.translate(0, E * k);
+    ctx.scale(k, k);
+    ctx.fillStyle = '#000000'; ctx.strokeStyle = '#000000';
+    var mp = modulePaths(code);
+    ctx.fill(new Path2D(mp.square));
+    if (mp.dots) { ctx.lineWidth = DOT; ctx.lineCap = 'round'; ctx.stroke(new Path2D(mp.dots)); }
+    ctx.lineJoin = 'miter';
+    allShapes(code).forEach(function (sh) {
+      var p = new Path2D(sh.d);
+      if (sh.sw) { ctx.lineWidth = sh.sw; ctx.lineCap = sh.round ? 'round' : 'butt'; ctx.stroke(p); }
+      else { ctx.fillStyle = sh.white ? '#ffffff' : '#000000'; ctx.fill(p); }
+    });
+    ctx.restore();
     return cv;
   }
   function f2(n) { return (Math.round(n * 100) / 100).toString(); }
   function toSvg(code) {
-    var size = code.N + 2 * QUIET, d = '', body = '<rect width="' + size + '" height="' + size + '" fill="#fff"/>';
-    eachRun(code, function (r, c0, len) { d += 'M' + (QUIET + c0) + ' ' + (QUIET + r) + 'h' + len + 'v1h-' + len + 'z'; });
-    body += '<path d="' + d + '" fill="#000" shape-rendering="crispEdges"/>';
-    var L = markLayout(code);
-    if (L) {
-      markShapes(L).forEach(function (sh) {
-        body += sh.sw
-          ? '<path fill="none" stroke="#000" stroke-width="' + f2(sh.sw) + '" stroke-linejoin="miter" stroke-linecap="' + (sh.round ? 'round' : 'butt') + '" d="' + sh.d + '"/>'
-          : '<path fill="#000" d="' + sh.d + '"/>';
-      });
-    }
-    var mm = (size * MM_PER_MODULE).toFixed(1);
-    return '<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="' + mm + 'mm" height="' + mm +
-      'mm" viewBox="0 0 ' + size + ' ' + size + '">' + body + '</svg>\n';
+    var g = tabGeom(code), E = g ? g.extra : 0, W = code.N + 2 * QUIET, H = W + E;
+    var body = '<rect width="' + W + '" height="' + H + '" fill="#fff"/><g transform="translate(0 ' + E + ')">';
+    var mp = modulePaths(code);
+    body += '<path d="' + mp.square + '" fill="#000" shape-rendering="crispEdges"/>';
+    if (mp.dots) body += '<path d="' + mp.dots + '" fill="none" stroke="#000" stroke-width="' + DOT + '" stroke-linecap="round"/>';
+    allShapes(code).forEach(function (sh) {
+      body += sh.sw
+        ? '<path fill="none" stroke="#000" stroke-width="' + f2(sh.sw) + '" stroke-linejoin="miter" stroke-linecap="' + (sh.round ? 'round' : 'butt') + '" d="' + sh.d + '"/>'
+        : '<path fill="' + (sh.white ? '#fff' : '#000') + '" d="' + sh.d + '"/>';
+    });
+    body += '</g>';
+    return '<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="' + (W * MM_PER_MODULE).toFixed(1) + 'mm" height="' +
+      (H * MM_PER_MODULE).toFixed(1) + 'mm" viewBox="0 0 ' + W + ' ' + H + '">' + body + '</svg>\n';
   }
 
   /* ---------- 만들기 ---------- */
@@ -956,7 +1060,8 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     var img = $('codeImg');
     img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(toSvg(current));   // 화면에는 SVG로 표시
     img.alt = '소리코드 코드 그림, 한 변 ' + current.N + '칸';
-    $('sPrint').textContent = '한 변 ' + ((current.N + 2 * QUIET) * MM_PER_MODULE / 10).toFixed(1) + ' cm 이상';
+    var tg = tabGeom(current), pw = (current.N + 2 * QUIET) * MM_PER_MODULE / 10, ph = pw + (tg ? tg.extra : 0) * MM_PER_MODULE / 10;
+    $('sPrint').textContent = pw.toFixed(1) + ' × ' + ph.toFixed(1) + ' cm 이상';
   }
   async function update() {
     var my = ++seq, text = $('text').value, err = $('makeErr');
@@ -1257,9 +1362,11 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
   $('lang').addEventListener('change', update);
   $('level').addEventListener('change', update);
   $('mark').addEventListener('change', update);
+  $('tab').addEventListener('change', redraw);
+  $('dots').addEventListener('change', redraw);
   $('selfRead').addEventListener('click', function () {
     if (!current) return;
-    var cv = toCanvas(current, 4);
+    var cv = toCanvas(current, $('dots').value === 'round' ? 8 : 4);
     show('read', true, { noCam: true });
     readSource(cv, cv.width, cv.height);
   });
@@ -1288,7 +1395,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
   });
   var rows = '';
   [32, 48, 64, 96, 128, 176].forEach(function (N) {
-    var c = SC.layout(N, 1, true).textCap;
+    var c = SC.layout(N, 1, false).textCap;
     rows += '<div class="item"><span class="k">' + N + '칸</span><span class="v">' + c + '바이트 · 약 ' + Math.floor(c / 3) + '자 · ' +
       ((N + 2 * QUIET) * MM_PER_MODULE / 10).toFixed(1) + ' cm</span></div>';
   });
