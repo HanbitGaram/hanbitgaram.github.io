@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>소리코드 v0.1</title>
+<title>소리코드 v0.2</title>
 <style>
 :root {
   /* 배치: 휴대폰 앱 한 화면. 위 제목 막대, 가운데 스크롤 화면 3개(만들기·읽기·규격), 아래 탭 막대.
@@ -118,7 +118,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
 </head>
 <body>
 <div class="app">
-  <header class="bar"><h1>소리코드</h1><span>v0.1 시제품</span></header>
+  <header class="bar"><h1>소리코드</h1><span>v0.2 시제품</span></header>
 
   <main id="main">
     <!-- 만들기 -->
@@ -134,10 +134,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
           <select id="lang"><option value="ko" selected>한국어</option><option value="en">English</option><option value="ja">日本語</option></select></div>
         <div class="item"><label for="level">훼손 대비</label>
           <select id="level"><option value="L">낮음 (약 6% 복구)</option><option value="M" selected>보통 (약 12% 복구)</option><option value="H">높음 (약 18% 복구)</option></select></div>
-        <div class="item"><label for="frame">테두리</label>
-          <select id="frame"><option value="label" selected>이름표 테두리</option><option value="none">없음</option></select></div>
-        <div class="item" id="labelRow"><label for="label">이름표 글자</label>
-          <input type="text" id="label" maxlength="14" value="소리코드" autocomplete="off"></div>
+        <div class="item" style="display:none"><label for="mark">가운데 SOCD 표시</label><input type="checkbox" class="sw" id="mark" checked></div>
       </div>
 
       <div id="made" class="screen">
@@ -198,16 +195,17 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
         <div class="stack"><b>테두리</b><span>바깥 한 줄은 모두 검은 칸입니다. 판독기는 이 사각 테두리로 코드를 찾고 기울기를 바로잡습니다.</span></div>
         <div class="stack"><b>눈금</b><span>테두리 바로 안쪽 줄에서 위쪽과 왼쪽은 검정과 흰색이 번갈아 나오고, 아래쪽과 오른쪽은 흰색입니다. 칸 수와 방향을 알려 줍니다.</span></div>
         <div class="stack"><b>크기</b><span>한 변 24칸부터 176칸까지 4칸 단위로 39가지입니다. 둘레에 흰 여백 4칸 이상이 필요합니다.</span></div>
-        <div class="stack"><b>데이터</b><span>안쪽 (N−4)×(N−4)칸에 왼쪽 위부터 한 줄씩 채웁니다. 한 칸이 1비트이고 검정이 1입니다.</span></div>
+        <div class="stack"><b>가운데 표시 (선택)</b><span>코드 한가운데 가로 2×round(N/5)칸, 세로 2×round(9N/100)칸은 데이터를 넣지 않고 비워 두어 SOCD 표시를 그립니다. 형식 정보의 한 비트가 이 자리를 비웠는지 알려 줍니다.</span></div>
+        <div class="stack"><b>데이터</b><span>안쪽 (N−4)×(N−4)칸에 왼쪽 위부터 한 줄씩, 가운데 표시 자리는 건너뛰며 채웁니다. 한 칸이 1비트이고 검정이 1입니다.</span></div>
       </div>
       <p class="cap">부호화</p>
       <div class="group">
         <div class="stack"><b>백색화</b><span>16비트 LFSR(<code>x<sup>16</sup>+x<sup>14</sup>+x<sup>13</sup>+x<sup>11</sup>+1</code>, 초깃값 <code>0xACE1</code>) 수열과 XOR 해서 검정과 흰색을 고르게 섞습니다.</span></div>
-        <div class="stack"><b>형식 정보</b><span>판 번호, 훼손 대비 수준, 크기를 담은 8바이트(6바이트는 패리티)를 맨 앞과 맨 뒤에 한 번씩 둡니다.</span></div>
+        <div class="stack"><b>형식 정보</b><span>판 번호, 훼손 대비 수준, 가운데 표시 유무, 크기를 담은 8바이트(6바이트는 패리티)를 맨 앞과 맨 뒤에 한 번씩 둡니다.</span></div>
         <div class="stack"><b>오류 정정</b><span>GF(256) 리드-솔로몬 부호(원시다항식 <code>0x11D</code>)를 블록당 255바이트 이하로 나누어 쓰고 블록끼리 번갈아 배치합니다. 패리티 비율은 12.5%, 25%, 37.5%입니다.</span></div>
         <div class="stack"><b>내용</b><span>방식 1바이트(0은 UTF-8, 1은 DEFLATE 압축), 언어 2바이트(ISO 639-1), 길이 3바이트, 본문, CRC-32 순서입니다.</span></div>
       </div>
-      <p class="cap">크기별 담는 양 (훼손 대비 보통, 한글 압축 전)</p>
+      <p class="cap">크기별 담는 양 (훼손 대비 보통, 가운데 표시 있음, 한글 압축 전)</p>
       <div class="group" id="capRows"></div>
       <p class="foot">긴 글은 압축되어 표보다 더 많이 들어갑니다. 판독 기능은 기울임, 흐림, 잡음, 일부 가림을 넣은 합성 사진으로 시험했고 실제 휴대폰 사진으로는 아직 충분히 시험하지 않았습니다. 규격과 코드는 누구나 자유롭게 쓰고 고칠 수 있도록 CC0 공개를 전제로 작성했습니다.</p>
     </section>
@@ -226,12 +224,12 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
 </div>
 
 <script id="core">
-/* 소리코드(SoriCode, 가칭) v0.1 — 공개 2차원 음성 코드 참조 구현
+/* 소리코드(SoriCode) v0.2 — 공개 2차원 음성 코드 참조 구현
  * 저작권 없음(CC0 1.0): 누구나 자유롭게 사용·수정·배포할 수 있습니다.
  */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.SoriCode = factory();
+  else root.SoriBoso = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
@@ -342,8 +340,26 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
   }
 
   /* ---------- 배치 계산 ---------- */
-  function layout(N, lvl) {
-    var side = N - 4, total = (side * side) >> 3, main = total - 2 * FMT_LEN;
+  /* 가운데 표시 자리(칸): 가로 2·round(N/5), 세로 2·round(9N/100). 이 자리에는 데이터를 넣지 않는다. */
+  function markGeom(N) {
+    var w = 2 * Math.round(N / 5), h = 2 * Math.round(N * 9 / 100);
+    return { x: (N - w) / 2, y: (N - h) / 2, w: w, h: h };
+  }
+  var cellCache = {};
+  function cellList(N, mark) {
+    var key = N + (mark ? 'm' : ''), c = cellCache[key];
+    if (c) return c;
+    var mk = mark ? markGeom(N) : null, out = [], r, col;
+    for (r = 2; r < N - 2; r++) for (col = 2; col < N - 2; col++) {
+      if (mk && r >= mk.y && r < mk.y + mk.h && col >= mk.x && col < mk.x + mk.w) continue;
+      out.push(r * N + col);
+    }
+    c = cellCache[key] = new Int32Array(out.slice(0, (out.length >> 3) << 3));
+    return c;
+  }
+
+  function layout(N, lvl, mark) {
+    var side = N - 4, total = cellList(N, mark).length >> 3, main = total - 2 * FMT_LEN;
     var B = Math.ceil(main / 255), base = Math.floor(main / B), extra = main % B;
     var blocks = [], cap = 0, maxN = 0;
     for (var i = 0; i < B; i++) {
@@ -371,17 +387,17 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     return bytes;
   }
 
-  function formatBlock(N, lvl) {
+  function formatBlock(N, lvl, mark) {
     var d = new Uint8Array(FMT_LEN);
-    d[0] = (VERSION << 4) | (lvl << 2);
+    d[0] = (VERSION << 4) | (lvl << 2) | (mark ? 1 : 0);
     d[1] = N >> 2;
     d.set(rsEncode(d.subarray(0, FMT_LEN - FMT_PAR), FMT_PAR), FMT_LEN - FMT_PAR);
     return d;
   }
 
   /* ---------- 부호화 ---------- */
-  function buildCodewords(payload, N, lvl) {
-    var lay = layout(N, lvl);
+  function buildCodewords(payload, N, lvl, mark) {
+    var lay = layout(N, lvl, mark);
     if (payload.length > lay.dataCap) throw new Error('capacity');
     var data = new Uint8Array(lay.dataCap);
     data.set(payload);
@@ -392,7 +408,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
       cw.set(rsEncode(cw.subarray(0, bl.k), bl.p), bl.k);
       cws.push(cw);
     }
-    var out = new Uint8Array(lay.total), o = 0, fmt = formatBlock(N, lvl);
+    var out = new Uint8Array(lay.total), o = 0, fmt = formatBlock(N, lvl, mark);
     out.set(fmt, 0); o = FMT_LEN;
     for (j = 0; j < lay.maxN; j++)
       for (i = 0; i < cws.length; i++)
@@ -401,13 +417,13 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     return whiten(out);
   }
 
-  function buildMatrix(N, codewords) {
-    var m = new Uint8Array(N * N), r, c, side = N - 4;
+  function buildMatrix(N, codewords, mark) {
+    var m = new Uint8Array(N * N), r, c, cl = cellList(N, mark);
     for (r = 0; r < N; r++) { m[r * N] = 1; m[r * N + N - 1] = 1; m[r] = 1; m[(N - 1) * N + r] = 1; }
     for (c = 1; c <= N - 2; c++) if (c & 1) m[N + c] = 1;       // 위쪽 타이밍
     for (r = 1; r <= N - 2; r++) if (r & 1) m[r * N + 1] = 1;   // 왼쪽 타이밍
-    for (var t = 0; t < side * side; t++) {
-      if ((codewords[t >> 3] >> (7 - (t & 7))) & 1) m[(2 + ((t / side) | 0)) * N + 2 + (t % side)] = 1;
+    for (var t = 0; t < cl.length; t++) {
+      if ((codewords[t >> 3] >> (7 - (t & 7))) & 1) m[cl[t]] = 1;
     }
     return m;
   }
@@ -443,22 +459,23 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     opts = opts || {};
     var lvl = Math.max(0, LEVELS.indexOf(opts.level || 'M'));
     var lang = (opts.lang || 'ko').slice(0, 2).padEnd(2, ' ');
+    var mark = opts.mark !== false;
     var raw = new TextEncoder().encode(text), data = raw, mode = 0;
     var comp = await deflateRaw(raw);
     if (comp && comp.length < raw.length) { data = comp; mode = 1; }
     var need = data.length + HEADER + CRC_LEN, N = 0;
     var minN = (opts.size && opts.size !== 'auto') ? +opts.size : 0;
     for (var i = 0; i < SIZES.length; i++) {
-      if (SIZES[i] >= minN && layout(SIZES[i], lvl).dataCap >= need) { N = SIZES[i]; break; }
+      if (SIZES[i] >= minN && layout(SIZES[i], lvl, mark).dataCap >= need) { N = SIZES[i]; break; }
     }
     if (!N) {
       var e = new Error('capacity');
-      e.need = need; e.max = layout(SIZES[SIZES.length - 1], lvl).dataCap;
+      e.need = need; e.max = layout(SIZES[SIZES.length - 1], lvl, mark).dataCap;
       throw e;
     }
-    var lay = layout(N, lvl);
-    var matrix = buildMatrix(N, buildCodewords(makePayload(mode, lang, data), N, lvl));
-    return { N: N, matrix: matrix, level: LEVELS[lvl], mode: mode, lang: lang.trim(),
+    var lay = layout(N, lvl, mark);
+    var matrix = buildMatrix(N, buildCodewords(makePayload(mode, lang, data), N, lvl, mark), mark);
+    return { N: N, matrix: matrix, level: LEVELS[lvl], mode: mode, lang: lang.trim(), mark: mark ? markGeom(N) : null,
       rawBytes: raw.length, storedBytes: need, capacity: lay.dataCap };
   }
 
@@ -469,14 +486,14 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     if ((f[0] >> 4) !== VERSION) return null;
     var lvl = (f[0] >> 2) & 3;
     if (lvl > 2) return null;
-    return { level: lvl, N: f[1] << 2 };
+    return { level: lvl, N: f[1] << 2, mark: (f[0] & 1) === 1 };
   }
 
-  function decodeCodewords(whitened, N) {
+  function decodeCodewords(whitened, N, mark) {
     var bytes = whiten(whitened.slice()), T = bytes.length;
     var fmt = tryFormat(bytes.subarray(0, FMT_LEN)) || tryFormat(bytes.subarray(T - FMT_LEN));
-    if (!fmt || fmt.N !== N) return { ok: false, reason: 'format' };
-    var lay = layout(N, fmt.level), B = lay.blocks.length, i, j, o = FMT_LEN;
+    if (!fmt || fmt.N !== N || fmt.mark !== !!mark) return { ok: false, reason: 'format' };
+    var lay = layout(N, fmt.level, mark), B = lay.blocks.length, i, j, o = FMT_LEN;
     var cws = lay.blocks.map(function (b) { return new Uint8Array(b.n); });
     for (j = 0; j < lay.maxN; j++)
       for (i = 0; i < B; i++)
@@ -495,19 +512,31 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     if (c !== stored) return { ok: false, reason: 'crc' };
     return { ok: true, N: N, level: LEVELS[fmt.level], mode: data[0],
       lang: String.fromCharCode(data[1], data[2]).trim(), data: data.slice(HEADER, HEADER + L),
-      corrected: fixed, totalCodewords: lay.main };
+      corrected: fixed, totalCodewords: lay.main, mark: !!mark };
   }
 
-  function readBits(getBit, N) {
-    var side = N - 4, total = (side * side) >> 3, bytes = new Uint8Array(total);
-    for (var t = 0; t < side * side; t++) {
-      if (getBit(2 + ((t / side) | 0), 2 + (t % side))) bytes[t >> 3] |= 0x80 >> (t & 7);
+  function readBits(getBit, N, mark) {
+    var cl = cellList(N, mark), bytes = new Uint8Array(cl.length >> 3);
+    for (var t = 0; t < cl.length; t++) {
+      if (getBit((cl[t] / N) | 0, cl[t] % N)) bytes[t >> 3] |= 0x80 >> (t & 7);
     }
     return bytes;
   }
 
+  /* 맨 앞 형식 정보(가운데 표시 유무와 무관하게 같은 자리)를 먼저 읽고, 망가졌으면 두 배치를 모두 시도 */
+  function decodeWith(getBit, N) {
+    var side = N - 4, head = new Uint8Array(FMT_LEN), t;
+    for (t = 0; t < FMT_LEN * 8; t++) if (getBit(2 + ((t / side) | 0), 2 + (t % side))) head[t >> 3] |= 0x80 >> (t & 7);
+    var fa = tryFormat(whiten(head)), order = fa ? [fa.mark] : [true, false], last = { ok: false, reason: 'format' };
+    for (var i = 0; i < order.length; i++) {
+      last = decodeCodewords(readBits(getBit, N, order[i]), N, order[i]);
+      if (last.ok) return last;
+    }
+    return last;
+  }
+
   function decodeMatrix(matrix, N) {
-    return decodeCodewords(readBits(function (r, c) { return matrix[r * N + c]; }, N), N);
+    return decodeWith(function (r, c) { return matrix[r * N + c]; }, N);
   }
 
   async function payloadText(res) {
@@ -678,9 +707,8 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
   function makeSampler(I, W, H, quad, rot, N) {
     var Hm = squareToQuad(quad[rot % 4], quad[(rot + 1) % 4], quad[(rot + 2) % 4], quad[(rot + 3) % 4]);
     if (!Hm) return null;
-    var sideLen = 0;
-    for (var i = 0; i < 4; i++) sideLen += Math.hypot(quad[(i + 1) % 4].x - quad[i].x, quad[(i + 1) % 4].y - quad[i].y);
-    var mpx = sideLen / 4 / N;
+    var q0 = quad[rot % 4], q1 = quad[(rot + 1) % 4], q2 = quad[(rot + 2) % 4], q3 = quad[(rot + 3) % 4];
+    var mpx = (Math.hypot(q1.x - q0.x, q1.y - q0.y) + Math.hypot(q2.x - q3.x, q2.y - q3.y)) / 2 / N;
     var pr = Math.max(0, Math.min(4, Math.floor(mpx / 4)));
     var wr = Math.max(6, Math.round(mpx * 4));
     return function (r, c) {
@@ -732,7 +760,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
       list.sort(function (a, b) { return b.score - a.score; });
       for (var k = 0; k < Math.min(4, list.length); k++) {
         stage = 'ecc';
-        var res = decodeCodewords(readBits(list[k].get, list[k].N), list[k].N);
+        var res = decodeWith(list[k].get, list[k].N);
         if (res.ok) { res.quad = quad; res.rot = list[k].rot; res.score = list[k].score; return res; }
       }
     }
@@ -758,7 +786,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     return g;
   }
 
-  return { VERSION: VERSION, SIZES: SIZES, LEVELS: LEVELS, layout: layout, encodeText: encodeText,
+  return { VERSION: VERSION, SIZES: SIZES, LEVELS: LEVELS, layout: layout, markGeom: markGeom, encodeText: encodeText,
     decodeMatrix: decodeMatrix, decodeImage: decodeImage, payloadText: payloadText, rgbaToGray: rgbaToGray,
     _rsEncode: rsEncode, _rsDecode: rsDecode, _squareToQuad: squareToQuad };
 });
@@ -767,7 +795,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
 <script>
 (function () {
   'use strict';
-  var SC = window.SoriCode;
+  var SC = window.SoriBoso;
   function $(id) { return document.getElementById(id); }
   var EXAMPLE = '안녕하세요. 이것은 소리코드 예시입니다. 이 코드를 사진으로 찍으면 여기에 적힌 글을 소리로 들을 수 있습니다.';
   var QUIET = 4, MM_PER_MODULE = 0.5;
@@ -804,30 +832,17 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
   }
 
   /* ---------- 코드 그림 ---------- */
-  function frameOpts() {
-    return { frame: $('frame').value, label: ($('label').value || '').trim() || '소리코드', tag: ($('lang').value || 'ko').toUpperCase() };
-  }
-  /* 칸 단위 좌표. 이름표 테두리: 검은 둥근 판 위에 흰 창(코드+여백)과 아래 이름 띠 */
-  function geom(code, o) {
-    var S = code.N + 2 * QUIET;
-    if (o.frame === 'none') return { W: S, H: S, ox: 0, oy: 0, S: S, band: 0 };
-    var edge = S * 0.035, band = S * 0.19;
-    return { W: S + 2 * edge, H: S + edge + band, ox: edge, oy: edge, S: S, band: band, r: S * 0.085 };
-  }
   var measureCtx = document.createElement('canvas').getContext('2d');
-  function bandLayout(g, o) {
-    var cy = g.oy + g.S + g.band / 2, pad = g.S * 0.07, ih = g.band * 0.5;
-    var bh = g.band * 0.52, bw = bh * 1.75, bx = g.W - pad - bw;
-    var tx = pad + ih * 1.25, maxW = bx - tx - g.S * 0.04, fs = g.band * 0.5;
-    measureCtx.font = '800 100px ' + FONT;
-    var w100 = measureCtx.measureText(o.label).width || 1;
-    if (w100 / 100 * fs > maxW) fs = maxW / (w100 / 100);
-    return { cy: cy, pad: pad, ih: ih, bh: bh, bw: bw, bx: bx, tx: tx, fs: fs, tw: w100 / 100 * fs };
-  }
-  function rrect(ctx, x, y, w, h, r) {
-    ctx.beginPath(); ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  /* 가운데 표시(SOCD + 스피커). 칸 단위 좌표, 흰 여백(QUIET) 포함 */
+  function markLayout(code) {
+    var m = code.mark;
+    if (!m) return null;
+    var CAP = 0.72, ICON = 1.15 * CAP, IW = 1.08 * ICON, GAP = 0.16;
+    measureCtx.font = '900 100px ' + FONT;
+    var tw1 = (measureCtx.measureText('SOCD').width || 135) / 100;
+    var fs = Math.min(m.h * 0.74 / ICON, m.w * 0.84 / (tw1 + GAP + IW));
+    var total = (tw1 + GAP + IW) * fs, sx = QUIET + m.x + m.w / 2 - total / 2, cy = QUIET + m.y + m.h / 2;
+    return { fs: fs, tx: sx, ty: cy + CAP * fs / 2, tw: tw1 * fs, ix: sx + (tw1 + GAP) * fs, ih: ICON * fs, cy: cy };
   }
   function eachRun(code, fn) {
     var N = code.N, m = code.matrix;
@@ -841,80 +856,62 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
       }
     }
   }
-  function toCanvas(code, scale, o) {
-    o = o || frameOpts();
-    var g = geom(code, o), cv = document.createElement('canvas');
-    var ox = Math.round(g.ox * scale), oy = Math.round(g.oy * scale), S = g.S * scale;
-    cv.width = S + 2 * ox; cv.height = Math.round(g.H * scale);
+  function toCanvas(code, scale) {
+    var cv = document.createElement('canvas'), k = scale, size = (code.N + 2 * QUIET) * k;
+    cv.width = size; cv.height = size;
     var ctx = cv.getContext('2d');
-    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, cv.width, cv.height);
-    if (o.frame !== 'none') {
-      var L = bandLayout(g, o), k = scale;
-      ctx.fillStyle = '#000000'; rrect(ctx, 0, 0, cv.width, cv.height, g.r * k); ctx.fill();
-      ctx.fillStyle = '#ffffff'; rrect(ctx, ox, oy, S, S, g.r * 0.6 * k); ctx.fill();
-      // 스피커 그림
-      var x0 = L.pad * k, h = L.ih * k, y0 = L.cy * k - h / 2;
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, size, size);
+    ctx.fillStyle = '#000000';
+    eachRun(code, function (r, c0, len) { ctx.fillRect((QUIET + c0) * k, (QUIET + r) * k, len * k, k); });
+    var L = markLayout(code);
+    if (L) {
+      ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+      ctx.font = '900 ' + (L.fs * k) + 'px ' + FONT;
+      ctx.fillText('SOCD', L.tx * k, L.ty * k);
+      var x0 = L.ix * k, h = L.ih * k, y0 = L.cy * k - h / 2;
       ctx.beginPath();
       ctx.moveTo(x0, y0 + 0.32 * h); ctx.lineTo(x0 + 0.24 * h, y0 + 0.32 * h); ctx.lineTo(x0 + 0.54 * h, y0 + 0.06 * h);
       ctx.lineTo(x0 + 0.54 * h, y0 + 0.94 * h); ctx.lineTo(x0 + 0.24 * h, y0 + 0.68 * h); ctx.lineTo(x0, y0 + 0.68 * h);
       ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 0.1 * h; ctx.lineCap = 'round';
+      ctx.strokeStyle = '#000000'; ctx.lineWidth = 0.11 * h; ctx.lineCap = 'round';
       [0.26, 0.46].forEach(function (rr) {
         ctx.beginPath(); ctx.arc(x0 + 0.56 * h, y0 + 0.5 * h, rr * h, -0.7, 0.7); ctx.stroke();
       });
-      // 이름
-      ctx.fillStyle = '#ffffff'; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
-      ctx.font = '800 ' + (L.fs * k) + 'px ' + FONT;
-      ctx.fillText(o.label, L.tx * k, L.cy * k + L.fs * k * 0.04);
-      // 언어 표시
-      rrect(ctx, L.bx * k, (L.cy - L.bh / 2) * k, L.bw * k, L.bh * k, L.bh * 0.28 * k); ctx.fill();
-      ctx.fillStyle = '#000000'; ctx.textAlign = 'center';
-      ctx.font = '800 ' + (L.bh * 0.62 * k) + 'px ' + FONT;
-      ctx.fillText(o.tag, (L.bx + L.bw / 2) * k, L.cy * k + L.bh * k * 0.04);
     }
-    ctx.fillStyle = '#000000';
-    eachRun(code, function (r, c0, len) { ctx.fillRect(ox + (c0 + QUIET) * scale, oy + (r + QUIET) * scale, len * scale, scale); });
     return cv;
   }
   function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
   function f2(n) { return (Math.round(n * 100) / 100).toString(); }
-  function toSvg(code, o) {
-    o = o || frameOpts();
-    var g = geom(code, o), d = '', body = '';
-    eachRun(code, function (r, c0, len) { d += 'M' + (c0 + QUIET) + ' ' + (r + QUIET) + 'h' + len + 'v1h-' + len + 'z'; });
-    if (o.frame !== 'none') {
-      var L = bandLayout(g, o), x0 = L.pad, h = L.ih, y0 = L.cy - h / 2, cx = x0 + 0.56 * h, cy = y0 + 0.5 * h;
-      body += '<rect width="' + f2(g.W) + '" height="' + f2(g.H) + '" rx="' + f2(g.r) + '" fill="#000"/>';
-      body += '<rect x="' + f2(g.ox) + '" y="' + f2(g.oy) + '" width="' + g.S + '" height="' + g.S + '" rx="' + f2(g.r * 0.6) + '" fill="#fff"/>';
-      body += '<path fill="#fff" d="M' + f2(x0) + ' ' + f2(y0 + 0.32 * h) + 'L' + f2(x0 + 0.24 * h) + ' ' + f2(y0 + 0.32 * h) + 'L' + f2(x0 + 0.54 * h) + ' ' + f2(y0 + 0.06 * h) +
+  function toSvg(code) {
+    var size = code.N + 2 * QUIET, d = '', body = '<rect width="' + size + '" height="' + size + '" fill="#fff"/>';
+    eachRun(code, function (r, c0, len) { d += 'M' + (QUIET + c0) + ' ' + (QUIET + r) + 'h' + len + 'v1h-' + len + 'z'; });
+    body += '<path d="' + d + '" fill="#000" shape-rendering="crispEdges"/>';
+    var L = markLayout(code);
+    if (L) {
+      var x0 = L.ix, h = L.ih, y0 = L.cy - h / 2, cx = x0 + 0.56 * h, cy = y0 + 0.5 * h;
+      body += '<text x="' + f2(L.tx) + '" y="' + f2(L.ty) + '" font-size="' + f2(L.fs) + '" textLength="' + f2(L.tw) +
+        '" lengthAdjust="spacingAndGlyphs" fill="#000" font-family="' + esc(FONT) + '" font-weight="900">SOCD</text>';
+      body += '<path fill="#000" d="M' + f2(x0) + ' ' + f2(y0 + 0.32 * h) + 'L' + f2(x0 + 0.24 * h) + ' ' + f2(y0 + 0.32 * h) + 'L' + f2(x0 + 0.54 * h) + ' ' + f2(y0 + 0.06 * h) +
         'L' + f2(x0 + 0.54 * h) + ' ' + f2(y0 + 0.94 * h) + 'L' + f2(x0 + 0.24 * h) + ' ' + f2(y0 + 0.68 * h) + 'L' + f2(x0) + ' ' + f2(y0 + 0.68 * h) + 'z"/>';
       [0.26, 0.46].forEach(function (rr) {
         var dx = rr * h * Math.cos(0.7), dy = rr * h * Math.sin(0.7);
-        body += '<path fill="none" stroke="#fff" stroke-width="' + f2(0.1 * h) + '" stroke-linecap="round" d="M' + f2(cx + dx) + ' ' + f2(cy - dy) +
+        body += '<path fill="none" stroke="#000" stroke-width="' + f2(0.11 * h) + '" stroke-linecap="round" d="M' + f2(cx + dx) + ' ' + f2(cy - dy) +
           'A' + f2(rr * h) + ' ' + f2(rr * h) + ' 0 0 1 ' + f2(cx + dx) + ' ' + f2(cy + dy) + '"/>';
       });
-      var fam = ' font-family="' + esc(FONT) + '" font-weight="800" dominant-baseline="central"';
-      body += '<text x="' + f2(L.tx) + '" y="' + f2(L.cy) + '" font-size="' + f2(L.fs) + '" textLength="' + f2(L.tw) + '" lengthAdjust="spacingAndGlyphs" fill="#fff"' + fam + '>' + esc(o.label) + '</text>';
-      body += '<rect x="' + f2(L.bx) + '" y="' + f2(L.cy - L.bh / 2) + '" width="' + f2(L.bw) + '" height="' + f2(L.bh) + '" rx="' + f2(L.bh * 0.28) + '" fill="#fff"/>';
-      body += '<text x="' + f2(L.bx + L.bw / 2) + '" y="' + f2(L.cy) + '" font-size="' + f2(L.bh * 0.62) + '" text-anchor="middle" fill="#000"' + fam + '>' + esc(o.tag) + '</text>';
-    } else {
-      body += '<rect width="' + g.W + '" height="' + g.H + '" fill="#fff"/>';
     }
-    body += '<path transform="translate(' + f2(g.ox) + ' ' + f2(g.oy) + ')" d="' + d + '" fill="#000" shape-rendering="crispEdges"/>';
-    return '<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="' + (g.W * MM_PER_MODULE).toFixed(1) + 'mm" height="' +
-      (g.H * MM_PER_MODULE).toFixed(1) + 'mm" viewBox="0 0 ' + f2(g.W) + ' ' + f2(g.H) + '">' + body + '</svg>\n';
+    var mm = (size * MM_PER_MODULE).toFixed(1);
+    return '<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="' + mm + 'mm" height="' + mm +
+      'mm" viewBox="0 0 ' + size + ' ' + size + '">' + body + '</svg>\n';
   }
 
   /* ---------- 만들기 ---------- */
   function setMakeButtons(on) { ['selfRead', 'savePng', 'saveSvg'].forEach(function (id) { $(id).disabled = !on; }); }
   function redraw() {
     if (!current) return;
-    var o = frameOpts(), img = $('codeImg');
-    img.src = toCanvas(current, 4, o).toDataURL('image/png');
-    img.alt = '소리코드 그림, 한 변 ' + current.N + '칸' + (o.frame === 'none' ? '' : ', 이름표 ' + o.label);
-    $('labelRow').hidden = o.frame === 'none';
-    var g = geom(current, o);
-    $('sPrint').textContent = (g.W * MM_PER_MODULE / 10).toFixed(1) + ' × ' + (g.H * MM_PER_MODULE / 10).toFixed(1) + ' cm 이상';
+    var img = $('codeImg');
+    img.src = toCanvas(current, 4).toDataURL('image/png');
+    img.alt = '소리코드 코드 그림, 한 변 ' + current.N + '칸';
+    $('sPrint').textContent = '한 변 ' + ((current.N + 2 * QUIET) * MM_PER_MODULE / 10).toFixed(1) + ' cm 이상';
   }
   async function update() {
     var my = ++seq, text = $('text').value, err = $('makeErr');
@@ -924,7 +921,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     }
     var code;
     try {
-      code = await SC.encodeText(text, { level: $('level').value, lang: $('lang').value });
+      code = await SC.encodeText(text, { level: $('level').value, lang: $('lang').value, mark: $('mark').checked });
     } catch (e) {
       if (my !== seq) return;
       current = null; $('made').hidden = true; setMakeButtons(false); err.hidden = false;
@@ -1100,7 +1097,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
   function getWorker() {
     if (worker || workerDead) return worker;
     try {
-      var src = $('core').textContent + '\nself.onmessage=function(e){var d=e.data,r;try{r=self.SoriCode.decodeImage(d.gray,d.W,d.H,d.divs);}' +
+      var src = $('core').textContent + '\nself.onmessage=function(e){var d=e.data,r;try{r=self.SoriBoso.decodeImage(d.gray,d.W,d.H,d.divs);}' +
         'catch(x){r={ok:false,reason:"noframe"};}self.postMessage({id:d.id,res:r});};';
       worker = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
       worker.onmessage = function (e) {
@@ -1214,8 +1211,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
   $('text').addEventListener('input', schedule);
   $('lang').addEventListener('change', update);
   $('level').addEventListener('change', update);
-  $('frame').addEventListener('change', redraw);
-  $('label').addEventListener('input', redraw);
+  $('mark').addEventListener('change', update);
   $('selfRead').addEventListener('click', function () {
     if (!current) return;
     var cv = toCanvas(current, 4);
@@ -1225,11 +1221,11 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
   $('savePng').addEventListener('click', function () {
     if (!current) return;
     var n = current.N;
-    toCanvas(current, 12).toBlob(function (b) { if (b) saveFile('soricode-' + n + '.png', b); }, 'image/png');
+    toCanvas(current, 12).toBlob(function (b) { if (b) saveFile('soriboso-' + n + '.png', b); }, 'image/png');
   });
   $('saveSvg').addEventListener('click', function () {
     if (!current) return;
-    saveFile('soricode-' + current.N + '.svg', new Blob([toSvg(current)], { type: 'image/svg+xml' }));
+    saveFile('soriboso-' + current.N + '.svg', new Blob([toSvg(current)], { type: 'image/svg+xml' }));
   });
   $('file').addEventListener('change', function (e) { var f = e.target.files && e.target.files[0]; e.target.value = ''; readFile(f); });
   var drop = $('drop');
@@ -1247,7 +1243,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
   });
   var rows = '';
   [32, 48, 64, 96, 128, 176].forEach(function (N) {
-    var c = SC.layout(N, 1).textCap;
+    var c = SC.layout(N, 1, true).textCap;
     rows += '<div class="item"><span class="k">' + N + '칸</span><span class="v">' + c + '바이트 · 약 ' + Math.floor(c / 3) + '자 · ' +
       ((N + 2 * QUIET) * MM_PER_MODULE / 10).toFixed(1) + ' cm</span></div>';
   });
