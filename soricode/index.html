@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>소리코드 v0.2</title>
+<title>소리코드 v0.3</title>
 <style>
 :root {
   /* 배치: 휴대폰 앱 한 화면. 위 제목 막대, 가운데 스크롤 화면 3개(만들기·읽기·규격), 아래 탭 막대.
@@ -118,7 +118,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
 </head>
 <body>
 <div class="app">
-  <header class="bar"><h1>소리코드</h1><span>v0.2 시제품</span></header>
+  <header class="bar"><h1>소리코드</h1><span>v0.3 시제품</span></header>
 
   <main id="main">
     <!-- 만들기 -->
@@ -134,6 +134,10 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
           <select id="lang"><option value="ko" selected>한국어</option><option value="en">English</option><option value="ja">日本語</option></select></div>
         <div class="item"><label for="level">훼손 대비</label>
           <select id="level"><option value="L">낮음 (약 6% 복구)</option><option value="M" selected>보통 (약 12% 복구)</option><option value="H">높음 (약 18% 복구)</option></select></div>
+        <div class="item"><label for="shape">모양</label>
+          <select id="shape"><option value="1:1" selected>정사각형</option><option value="2:1">가로로 긴 2:1</option><option value="3:1">가로로 긴 3:1</option><option value="4:1">가로로 긴 4:1</option><option value="1:2">세로로 긴 1:2</option><option value="1:3">세로로 긴 1:3</option><option value="1:4">세로로 긴 1:4</option><option value="fixed">크기 직접 지정</option></select></div>
+        <div class="item" id="rowW" hidden><label for="sizeW">가로 칸 수</label><select id="sizeW"></select></div>
+        <div class="item" id="rowH" hidden><label for="sizeH">세로 칸 수</label><select id="sizeH"></select></div>
         <div class="item" style="display:none"><label for="mark">가운데 SORI CODE 표시</label><input type="checkbox" class="sw" id="mark"></div>
         <div class="item"><label for="tab">이름표</label><input type="checkbox" class="sw" id="tab" checked></div>
         <div class="item"><label for="dots">점 모양</label>
@@ -196,17 +200,17 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
       <p class="cap">코드 구조</p>
       <div class="group">
         <div class="stack"><b>테두리</b><span>바깥 한 줄은 모두 검은 칸입니다. 판독기는 이 사각 테두리로 코드를 찾고 기울기를 바로잡습니다.</span></div>
-        <div class="stack"><b>눈금</b><span>테두리 바로 안쪽 줄에서 위쪽과 왼쪽은 검정과 흰색이 번갈아 나오고, 아래쪽과 오른쪽은 흰색입니다. 칸 수와 방향을 알려 줍니다.</span></div>
-        <div class="stack"><b>크기</b><span>한 변 24칸부터 176칸까지 4칸 단위로 39가지입니다. 둘레에 흰 여백 4칸 이상이 필요합니다.</span></div>
+        <div class="stack"><b>눈금</b><span>테두리 바로 안쪽 줄에서 위쪽과 왼쪽은 검정과 흰색이 번갈아 나오고, 아래쪽과 오른쪽은 흰색입니다. 위쪽 눈금으로 가로 칸 수를, 왼쪽 눈금으로 세로 칸 수를 알아내고 방향도 정합니다.</span></div>
+        <div class="stack"><b>크기</b><span>가로와 세로를 각각 24칸부터 176칸까지 4칸 단위로 정합니다. 정사각형이 아니어도 되지만 긴 변은 짧은 변의 4배 이하여야 합니다. 둘레에 흰 여백 4칸 이상이 필요합니다.</span></div>
         <div class="stack"><b>점 모양 (선택)</b><span>안쪽 칸은 네모 대신 지름이 칸의 88%인 둥근 점으로 그려도 됩니다. 바깥 테두리 한 줄은 반드시 이어진 선이어야 합니다. 판독기는 칸 가운데를 읽으므로 두 모양을 똑같이 읽습니다.</span></div>
         <div class="stack"><b>이름표 (선택)</b><span>위쪽 테두리 바깥 왼쪽에 SORICODE 이름표를 테두리에서 1.5칸 띄워 둘 수 있습니다. 데이터는 담지 않습니다. 판독기는 테두리와 떨어진 글자를 무시하고, 한 변에서 바깥으로 튀어나온 부분이 있어도 남은 테두리로 그 변을 찾습니다.</span></div>
-        <div class="stack"><b>가운데 표시 (선택)</b><span>코드 한가운데 세로 2×round(9N/100)칸, 가로는 그 2배인 자리는 데이터를 넣지 않고 비워 두어 SORI CODE 표시를 그립니다. 형식 정보의 한 비트가 이 자리를 비웠는지 알려 줍니다.</span></div>
-        <div class="stack"><b>데이터</b><span>안쪽 (N−4)×(N−4)칸에 왼쪽 위부터 한 줄씩, 가운데 표시 자리는 건너뛰며 채웁니다. 한 칸이 1비트이고 검정이 1입니다.</span></div>
+        <div class="stack"><b>가운데 표시 (선택)</b><span>짧은 변을 n칸이라 할 때 코드 한가운데 세로 2×round(9n/100)칸, 가로는 그 2배인 자리는 데이터를 넣지 않고 비워 두어 SORI CODE 표시를 그립니다. 형식 정보의 한 비트가 이 자리를 비웠는지 알려 줍니다.</span></div>
+        <div class="stack"><b>데이터</b><span>안쪽 (가로−4)×(세로−4)칸에 왼쪽 위부터 한 줄씩, 가운데 표시 자리는 건너뛰며 채웁니다. 한 칸이 1비트이고 검정이 1입니다.</span></div>
       </div>
       <p class="cap">부호화</p>
       <div class="group">
         <div class="stack"><b>백색화</b><span>16비트 LFSR(<code>x<sup>16</sup>+x<sup>14</sup>+x<sup>13</sup>+x<sup>11</sup>+1</code>, 초깃값 <code>0xACE1</code>) 수열과 XOR 해서 검정과 흰색을 고르게 섞습니다.</span></div>
-        <div class="stack"><b>형식 정보</b><span>판 번호, 훼손 대비 수준, 가운데 표시 유무, 크기를 담은 8바이트(6바이트는 패리티)를 맨 앞과 맨 뒤에 한 번씩 둡니다.</span></div>
+        <div class="stack"><b>형식 정보</b><span>판 번호, 훼손 대비 수준, 가운데 표시 유무, 가로와 세로 칸 수를 담은 9바이트(6바이트는 패리티)를 맨 앞과 맨 뒤에 한 번씩 둡니다. 정사각형만 되던 이전 판(8바이트)의 코드도 판독기가 읽습니다.</span></div>
         <div class="stack"><b>오류 정정</b><span>GF(256) 리드-솔로몬 부호(원시다항식 <code>0x11D</code>)를 블록당 255바이트 이하로 나누어 쓰고 블록끼리 번갈아 배치합니다. 패리티 비율은 12.5%, 25%, 37.5%입니다.</span></div>
         <div class="stack"><b>내용</b><span>방식 1바이트(0은 UTF-8, 1은 DEFLATE 압축), 언어 2바이트(ISO 639-1), 길이 3바이트, 본문, CRC-32 순서입니다.</span></div>
       </div>
@@ -238,12 +242,12 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
-  var VERSION = 1;
+  var VERSION = 2;
   var SIZES = [];
   for (var n0 = 24; n0 <= 176; n0 += 4) SIZES.push(n0);
   var LEVELS = ['L', 'M', 'H'];
   var RATIOS = [0.125, 0.25, 0.375];
-  var FMT_LEN = 8, FMT_PAR = 6, HEADER = 6, CRC_LEN = 4;
+  var FMT_PAR = 6, HEADER = 6, CRC_LEN = 4, MAX_ASPECT = 4;
 
   /* ---------- GF(256), 원시다항식 0x11D ---------- */
   var EXP = new Uint8Array(512), LOG = new Uint8Array(256);
@@ -345,26 +349,29 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
   }
 
   /* ---------- 배치 계산 ---------- */
-  /* 가운데 표시 자리(칸): 세로 2·round(9N/100), 가로는 세로의 2배. 이 자리에는 데이터를 넣지 않는다. */
-  function markGeom(N) {
-    var h = 2 * Math.round(N * 9 / 100), w = 2 * h;
-    return { x: (N - w) / 2, y: (N - h) / 2, w: w, h: h };
+  /* 코드는 가로 W칸 × 세로 H칸이다 (각각 24~176칸, 4칸 단위, 긴 변은 짧은 변의 MAX_ASPECT배 이하).
+     판 1: 정사각형만, 형식 정보 8바이트. 판 2: 직사각형까지, 형식 정보 9바이트. 새 코드는 모두 판 2로 만든다. */
+  function fmtLen(ver) { return ver === 1 ? 8 : 9; }
+  /* 가운데 표시 자리(칸): 짧은 변을 n이라 할 때 세로 2·round(9n/100), 가로는 세로의 2배. 이 자리에는 데이터를 넣지 않는다. */
+  function markGeom(W, H) {
+    var n = Math.min(W, H), h = 2 * Math.round(n * 9 / 100), w = 2 * h;
+    return { x: (W - w) / 2, y: (H - h) / 2, w: w, h: h };
   }
   var cellCache = {};
-  function cellList(N, mark) {
-    var key = N + (mark ? 'm' : ''), c = cellCache[key];
+  function cellList(W, H, mark) {
+    var key = W + 'x' + H + (mark ? 'm' : ''), c = cellCache[key];
     if (c) return c;
-    var mk = mark ? markGeom(N) : null, out = [], r, col;
-    for (r = 2; r < N - 2; r++) for (col = 2; col < N - 2; col++) {
+    var mk = mark ? markGeom(W, H) : null, out = [], r, col;
+    for (r = 2; r < H - 2; r++) for (col = 2; col < W - 2; col++) {
       if (mk && r >= mk.y && r < mk.y + mk.h && col >= mk.x && col < mk.x + mk.w) continue;
-      out.push(r * N + col);
+      out.push(r * W + col);
     }
     c = cellCache[key] = new Int32Array(out.slice(0, (out.length >> 3) << 3));
     return c;
   }
 
-  function layout(N, lvl, mark) {
-    var side = N - 4, total = cellList(N, mark).length >> 3, main = total - 2 * FMT_LEN;
+  function layout(W, H, lvl, mark, ver) {
+    var F = fmtLen(ver), total = cellList(W, H, mark).length >> 3, main = total - 2 * F;
     var B = Math.ceil(main / 255), base = Math.floor(main / B), extra = main % B;
     var blocks = [], cap = 0, maxN = 0;
     for (var i = 0; i < B; i++) {
@@ -373,8 +380,8 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
       blocks.push({ n: n, p: p, k: n - p });
       cap += n - p; if (n > maxN) maxN = n;
     }
-    return { N: N, side: side, total: total, main: main, blocks: blocks, dataCap: cap,
-      textCap: cap - HEADER - CRC_LEN, maxN: maxN };
+    return { W: W, H: H, total: total, main: main, blocks: blocks, dataCap: cap,
+      textCap: cap - HEADER - CRC_LEN, maxN: maxN, fmtLen: F };
   }
 
   /* 백색화: 16비트 LFSR (x^16+x^14+x^13+x^11+1), 초깃값 0xACE1 */
@@ -392,17 +399,18 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     return bytes;
   }
 
-  function formatBlock(N, lvl, mark) {
-    var d = new Uint8Array(FMT_LEN);
+  /* 형식 정보(판 2): 판 번호·훼손 대비·가운데 표시 1바이트, 가로/4, 세로/4, 패리티 6바이트 */
+  function formatBlock(W, H, lvl, mark) {
+    var d = new Uint8Array(9);
     d[0] = (VERSION << 4) | (lvl << 2) | (mark ? 1 : 0);
-    d[1] = N >> 2;
-    d.set(rsEncode(d.subarray(0, FMT_LEN - FMT_PAR), FMT_PAR), FMT_LEN - FMT_PAR);
+    d[1] = W >> 2; d[2] = H >> 2;
+    d.set(rsEncode(d.subarray(0, 3), FMT_PAR), 3);
     return d;
   }
 
   /* ---------- 부호화 ---------- */
-  function buildCodewords(payload, N, lvl, mark) {
-    var lay = layout(N, lvl, mark);
+  function buildCodewords(payload, W, H, lvl, mark) {
+    var lay = layout(W, H, lvl, mark, VERSION);
     if (payload.length > lay.dataCap) throw new Error('capacity');
     var data = new Uint8Array(lay.dataCap);
     data.set(payload);
@@ -413,8 +421,8 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
       cw.set(rsEncode(cw.subarray(0, bl.k), bl.p), bl.k);
       cws.push(cw);
     }
-    var out = new Uint8Array(lay.total), o = 0, fmt = formatBlock(N, lvl, mark);
-    out.set(fmt, 0); o = FMT_LEN;
+    var out = new Uint8Array(lay.total), fmt = formatBlock(W, H, lvl, mark), o = fmt.length;
+    out.set(fmt, 0);
     for (j = 0; j < lay.maxN; j++)
       for (i = 0; i < cws.length; i++)
         if (j < cws[i].length) out[o++] = cws[i][j];
@@ -422,11 +430,12 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     return whiten(out);
   }
 
-  function buildMatrix(N, codewords, mark) {
-    var m = new Uint8Array(N * N), r, c, cl = cellList(N, mark);
-    for (r = 0; r < N; r++) { m[r * N] = 1; m[r * N + N - 1] = 1; m[r] = 1; m[(N - 1) * N + r] = 1; }
-    for (c = 1; c <= N - 2; c++) if (c & 1) m[N + c] = 1;       // 위쪽 타이밍
-    for (r = 1; r <= N - 2; r++) if (r & 1) m[r * N + 1] = 1;   // 왼쪽 타이밍
+  function buildMatrix(W, H, codewords, mark) {
+    var m = new Uint8Array(W * H), r, c, cl = cellList(W, H, mark);
+    for (r = 0; r < H; r++) { m[r * W] = 1; m[r * W + W - 1] = 1; }
+    for (c = 0; c < W; c++) { m[c] = 1; m[(H - 1) * W + c] = 1; }
+    for (c = 1; c <= W - 2; c++) if (c & 1) m[W + c] = 1;       // 위쪽 눈금
+    for (r = 1; r <= H - 2; r++) if (r & 1) m[r * W + 1] = 1;   // 왼쪽 눈금
     for (var t = 0; t < cl.length; t++) {
       if ((codewords[t >> 3] >> (7 - (t & 7))) & 1) m[cl[t]] = 1;
     }
@@ -459,7 +468,23 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     return await pipe(u8, new DecompressionStream('deflate-raw'));
   }
 
-  /* 글 → 코드. opts: {level:'L'|'M'|'H', lang:'ko', size:'auto'|숫자} */
+  function validSize(W, H) {
+    return SIZES.indexOf(W) >= 0 && SIZES.indexOf(H) >= 0 && Math.max(W, H) <= MAX_ASPECT * Math.min(W, H);
+  }
+  /* 모양에 맞는 크기 후보를 작은 것부터 늘어놓는다.
+     shape: 없음(정사각형) | {mode:'ratio', rw, rh} 가로:세로 비율 | {mode:'fixed', w, h} 직접 지정 */
+  function sizeCandidates(shape) {
+    if (shape && shape.mode === 'fixed') return validSize(shape.w, shape.h) ? [[shape.w, shape.h]] : [];
+    var r = (shape && shape.mode === 'ratio') ? shape.rw / shape.rh : 1, big = Math.max(r, 1 / r), out = [];
+    for (var i = 0; i < SIZES.length; i++) {
+      var s = SIZES[i], l = 4 * Math.round(s * big / 4);
+      if (l > SIZES[SIZES.length - 1]) break;
+      if (validSize(l, s)) out.push(r >= 1 ? [l, s] : [s, l]);
+    }
+    return out;
+  }
+
+  /* 글 → 코드. opts: {level:'L'|'M'|'H', lang:'ko', mark:true|false, shape:(위 설명)} */
   async function encodeText(text, opts) {
     opts = opts || {};
     var lvl = Math.max(0, LEVELS.indexOf(opts.level || 'M'));
@@ -468,37 +493,39 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     var raw = new TextEncoder().encode(text), data = raw, mode = 0;
     var comp = await deflateRaw(raw);
     if (comp && comp.length < raw.length) { data = comp; mode = 1; }
-    var need = data.length + HEADER + CRC_LEN, N = 0;
-    var minN = (opts.size && opts.size !== 'auto') ? +opts.size : 0;
-    for (var i = 0; i < SIZES.length; i++) {
-      if (SIZES[i] >= minN && layout(SIZES[i], lvl, mark).dataCap >= need) { N = SIZES[i]; break; }
+    var need = data.length + HEADER + CRC_LEN, cands = sizeCandidates(opts.shape), pick = null, lay = null;
+    if (!cands.length) throw new Error('shape');
+    for (var i = 0; i < cands.length; i++) {
+      lay = layout(cands[i][0], cands[i][1], lvl, mark, VERSION);
+      if (lay.dataCap >= need) { pick = cands[i]; break; }
     }
-    if (!N) {
+    if (!pick) {
       var e = new Error('capacity');
-      e.need = need; e.max = layout(SIZES[SIZES.length - 1], lvl, mark).dataCap;
+      e.need = need; e.max = lay.dataCap;
       throw e;
     }
-    var lay = layout(N, lvl, mark);
-    var matrix = buildMatrix(N, buildCodewords(makePayload(mode, lang, data), N, lvl, mark), mark);
-    return { N: N, matrix: matrix, level: LEVELS[lvl], mode: mode, lang: lang.trim(), mark: mark ? markGeom(N) : null,
+    var W = pick[0], H = pick[1];
+    var matrix = buildMatrix(W, H, buildCodewords(makePayload(mode, lang, data), W, H, lvl, mark), mark);
+    return { W: W, H: H, matrix: matrix, level: LEVELS[lvl], mode: mode, lang: lang.trim(), mark: mark ? markGeom(W, H) : null,
       rawBytes: raw.length, storedBytes: need, capacity: lay.dataCap };
   }
 
   /* ---------- 복호화 (비트 → 내용) ---------- */
-  function tryFormat(bytes) {
+  function tryFormat(bytes, ver) {
     var f = bytes.slice();
     if (rsDecode(f, FMT_PAR) < 0) return null;
-    if ((f[0] >> 4) !== VERSION) return null;
+    if ((f[0] >> 4) !== ver) return null;
     var lvl = (f[0] >> 2) & 3;
     if (lvl > 2) return null;
-    return { level: lvl, N: f[1] << 2, mark: (f[0] & 1) === 1 };
+    return ver === 1 ? { ver: 1, level: lvl, W: f[1] << 2, H: f[1] << 2, mark: (f[0] & 1) === 1 }
+      : { ver: ver, level: lvl, W: f[1] << 2, H: f[2] << 2, mark: (f[0] & 1) === 1 };
   }
 
-  function decodeCodewords(whitened, N, mark) {
-    var bytes = whiten(whitened.slice()), T = bytes.length;
-    var fmt = tryFormat(bytes.subarray(0, FMT_LEN)) || tryFormat(bytes.subarray(T - FMT_LEN));
-    if (!fmt || fmt.N !== N || fmt.mark !== !!mark) return { ok: false, reason: 'format' };
-    var lay = layout(N, fmt.level, mark), B = lay.blocks.length, i, j, o = FMT_LEN;
+  function decodeCodewords(whitened, W, H, mark, ver) {
+    var bytes = whiten(whitened.slice()), T = bytes.length, F = fmtLen(ver);
+    var fmt = tryFormat(bytes.subarray(0, F), ver) || tryFormat(bytes.subarray(T - F), ver);
+    if (!fmt || fmt.W !== W || fmt.H !== H || fmt.mark !== !!mark) return { ok: false, reason: 'format' };
+    var lay = layout(W, H, fmt.level, mark, ver), B = lay.blocks.length, i, j, o = F;
     var cws = lay.blocks.map(function (b) { return new Uint8Array(b.n); });
     for (j = 0; j < lay.maxN; j++)
       for (i = 0; i < B; i++)
@@ -515,33 +542,41 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     var c = crc32(data, HEADER + L), e = HEADER + L;
     var stored = ((data[e] << 24) | (data[e + 1] << 16) | (data[e + 2] << 8) | data[e + 3]) >>> 0;
     if (c !== stored) return { ok: false, reason: 'crc' };
-    return { ok: true, N: N, level: LEVELS[fmt.level], mode: data[0],
+    return { ok: true, W: W, H: H, ver: ver, level: LEVELS[fmt.level], mode: data[0],
       lang: String.fromCharCode(data[1], data[2]).trim(), data: data.slice(HEADER, HEADER + L),
       corrected: fixed, totalCodewords: lay.main, mark: !!mark };
   }
 
-  function readBits(getBit, N, mark) {
-    var cl = cellList(N, mark), bytes = new Uint8Array(cl.length >> 3);
+  function readBits(getBit, W, H, mark) {
+    var cl = cellList(W, H, mark), bytes = new Uint8Array(cl.length >> 3);
     for (var t = 0; t < cl.length; t++) {
-      if (getBit((cl[t] / N) | 0, cl[t] % N)) bytes[t >> 3] |= 0x80 >> (t & 7);
+      if (getBit((cl[t] / W) | 0, cl[t] % W)) bytes[t >> 3] |= 0x80 >> (t & 7);
     }
     return bytes;
   }
 
-  /* 맨 앞 형식 정보(가운데 표시 유무와 무관하게 같은 자리)를 먼저 읽고, 망가졌으면 두 배치를 모두 시도 */
-  function decodeWith(getBit, N) {
-    var side = N - 4, head = new Uint8Array(FMT_LEN), t;
-    for (t = 0; t < FMT_LEN * 8; t++) if (getBit(2 + ((t / side) | 0), 2 + (t % side))) head[t >> 3] |= 0x80 >> (t & 7);
-    var fa = tryFormat(whiten(head)), order = fa ? [fa.mark] : [true, false], last = { ok: false, reason: 'format' };
-    for (var i = 0; i < order.length; i++) {
-      last = decodeCodewords(readBits(getBit, N, order[i]), N, order[i]);
+  /* 맨 앞 형식 정보(판과 가운데 표시 유무에 상관없이 같은 자리에서 시작)를 먼저 읽어 판과 배치를 알아내고,
+     망가졌으면 가능한 조합을 모두 시도한다. */
+  function decodeWith(getBit, W, H) {
+    var cl = cellList(W, H, false), head = new Uint8Array(9), t, cands = [], last = { ok: false, reason: 'format' };
+    for (t = 0; t < 72; t++) if (getBit((cl[t] / W) | 0, cl[t] % W)) head[t >> 3] |= 0x80 >> (t & 7);
+    whiten(head);
+    var f2 = tryFormat(head, 2), f1 = W === H ? tryFormat(head.subarray(0, 8), 1) : null;
+    if (f2 && f2.W === W && f2.H === H) cands.push([2, f2.mark]);
+    if (f1 && f1.W === W) cands.push([1, f1.mark]);
+    if (!cands.length) {
+      cands = [[2, false], [2, true]];
+      if (W === H) cands.push([1, false], [1, true]);
+    }
+    for (var i = 0; i < cands.length; i++) {
+      last = decodeCodewords(readBits(getBit, W, H, cands[i][1]), W, H, cands[i][1], cands[i][0]);
       if (last.ok) return last;
     }
     return last;
   }
 
-  function decodeMatrix(matrix, N) {
-    return decodeWith(function (r, c) { return matrix[r * N + c]; }, N);
+  function decodeMatrix(matrix, W, H) {
+    return decodeWith(function (r, c) { return matrix[r * W + c]; }, W, H);
   }
 
   async function payloadText(res) {
@@ -707,22 +742,38 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     var mx = 0, my = 0;
     for (i = 0; i < n; i++) { mx += px[i]; my += py[i]; }
     mx /= n; my /= n;
+    // 네 모서리 찾기. 길쭉한 코드에서도 통하도록:
+    // A = 중심에서 가장 먼 점, C = A에서 가장 먼 점(맞은편이거나 긴 변의 이웃 모서리),
+    // B = 직선 AC에서 가장 먼 점, D = 삼각형 ABC에서 가장 먼 점.
     var best = -1, ai = 0, ci = 0, bi = -1, di = -1, d;
     for (i = 0; i < n; i++) { d = (px[i] - mx) * (px[i] - mx) + (py[i] - my) * (py[i] - my); if (d > best) { best = d; ai = i; } }
     best = -1;
     for (i = 0; i < n; i++) { d = (px[i] - px[ai]) * (px[i] - px[ai]) + (py[i] - py[ai]) * (py[i] - py[ai]); if (d > best) { best = d; ci = i; } }
-    var acx = px[ci] - px[ai], acy = py[ci] - py[ai], diag = Math.sqrt(best), hi = 0, lo = 0;
-    for (i = 0; i < n; i++) {
-      var cr = acx * (py[i] - py[ai]) - acy * (px[i] - px[ai]);
-      if (cr > hi) { hi = cr; bi = i; }
-      if (cr < lo) { lo = cr; di = i; }
+    var ax = px[ai], ay = py[ai], ex = px[ci], ey = py[ci], acx = ex - ax, acy = ey - ay, diag = Math.sqrt(best);
+    best = 0;
+    for (i = 0; i < n; i++) { d = Math.abs(acx * (py[i] - ay) - acy * (px[i] - ax)); if (d > best) { best = d; bi = i; } }
+    if (bi < 0 || best / diag < 0.06 * diag) return null;
+    var fx = px[bi], fy = py[bi];
+    function sgn(x0, y0, x1, y1, x2, y2) { return (x2 - x1) * (y0 - y1) - (y2 - y1) * (x0 - x1); }
+    function segDist(x0, y0, x1, y1, x2, y2) {
+      var vx = x2 - x1, vy = y2 - y1, t = ((x0 - x1) * vx + (y0 - y1) * vy) / (vx * vx + vy * vy || 1);
+      t = t < 0 ? 0 : t > 1 ? 1 : t;
+      return Math.hypot(x0 - x1 - t * vx, y0 - y1 - t * vy);
     }
-    if (bi < 0 || di < 0) return null;
-    if (hi / diag < 0.15 * diag || -lo / diag < 0.15 * diag) return null;
-    var quad = [{ x: px[ai], y: py[ai] }, { x: px[bi], y: py[bi] }, { x: px[ci], y: py[ci] }, { x: px[di], y: py[di] }];
+    best = 0;
+    for (i = 0; i < n; i++) {
+      var s1 = sgn(px[i], py[i], ax, ay, fx, fy), s2 = sgn(px[i], py[i], fx, fy, ex, ey), s3 = sgn(px[i], py[i], ex, ey, ax, ay);
+      if ((s1 >= 0 && s2 >= 0 && s3 >= 0) || (s1 <= 0 && s2 <= 0 && s3 <= 0)) continue;   // 삼각형 안쪽
+      d = Math.min(segDist(px[i], py[i], ax, ay, fx, fy), segDist(px[i], py[i], fx, fy, ex, ey), segDist(px[i], py[i], ex, ey, ax, ay));
+      if (d > best) { best = d; di = i; }
+    }
+    if (di < 0 || best < 0.06 * diag) return null;
+    var quad = [{ x: ax, y: ay }, { x: fx, y: fy }, { x: ex, y: ey }, { x: px[di], y: py[di] }];
+    var g4x = (quad[0].x + quad[1].x + quad[2].x + quad[3].x) / 4, g4y = (quad[0].y + quad[1].y + quad[2].y + quad[3].y) / 4;
+    quad.sort(function (p, q) { return Math.atan2(p.y - g4y, p.x - g4x) - Math.atan2(q.y - g4y, q.x - g4x); });
     var area = 0;
     for (i = 0; i < 4; i++) { var a = quad[i], b = quad[(i + 1) % 4]; area += a.x * b.y - b.x * a.y; }
-    if (area < 0) quad = [quad[0], quad[3], quad[2], quad[1]];
+    if (area < 0) quad.reverse();
     // 네 변을 직선으로 맞춰 모서리를 정밀하게 다시 구한다 (탭이 있는 변은 안쪽 직선 사용)
     var lines = [];
     for (i = 0; i < 4; i++) lines.push(sideLine(px, py, quad[i], quad[(i + 1) % 4], mx, my));
@@ -753,47 +804,48 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
       d: p1.y - p0.y + g * p1.y, e: p3.y - p0.y + h * p3.y, f: p0.y, g: g, h: h };
   }
 
-  function makeSampler(I, W, H, quad, rot, N) {
-    var Hm = squareToQuad(quad[rot % 4], quad[(rot + 1) % 4], quad[(rot + 2) % 4], quad[(rot + 3) % 4]);
-    if (!Hm) return null;
-    var q0 = quad[rot % 4], q1 = quad[(rot + 1) % 4], q2 = quad[(rot + 2) % 4], q3 = quad[(rot + 3) % 4];
-    var mpx = (Math.hypot(q1.x - q0.x, q1.y - q0.y) + Math.hypot(q2.x - q3.x, q2.y - q3.y)) / 2 / N;
+  /* 칸 좌표 → 사진 좌표 표본기. Hm: 단위 정사각형을 코드 사각형으로 옮기는 변환, mpx: 한 칸의 픽셀 크기, W×H: 칸 수 */
+  function makeSampler(I, IW, IH, Hm, mpx, W, H) {
     var pr = Math.max(0, Math.min(4, Math.floor(mpx / 4)));
     var wr = Math.max(6, Math.round(mpx * 4));
     var get = function (r, c) {
-      var u = (c + 0.5) / N, v = (r + 0.5) / N, w = Hm.g * u + Hm.h * v + 1;
+      var u = (c + 0.5) / W, v = (r + 0.5) / H, w = Hm.g * u + Hm.h * v + 1;
       var x = Math.round((Hm.a * u + Hm.b * v + Hm.c) / w), y = Math.round((Hm.d * u + Hm.e * v + Hm.f) / w);
-      if (x < 0 || y < 0 || x >= W || y >= H) return 0;
-      return boxMean(I, W, H, x, y, pr) < boxMean(I, W, H, x, y, wr) ? 1 : 0;
+      if (x < 0 || y < 0 || x >= IW || y >= IH) return 0;
+      return boxMean(I, IW, IH, x, y, pr) < boxMean(I, IW, IH, x, y, wr) ? 1 : 0;
     };
     /* 칸 가운데의 밝기 (0 검정 ~ 255 흰색) */
     get.gray = function (r, c) {
-      var u = (c + 0.5) / N, v = (r + 0.5) / N, w = Hm.g * u + Hm.h * v + 1;
+      var u = (c + 0.5) / W, v = (r + 0.5) / H, w = Hm.g * u + Hm.h * v + 1;
       var x = Math.round((Hm.a * u + Hm.b * v + Hm.c) / w), y = Math.round((Hm.d * u + Hm.e * v + Hm.f) / w);
-      if (x < 0 || y < 0 || x >= W || y >= H) return 255;
-      return boxMean(I, W, H, x, y, pr);
+      if (x < 0 || y < 0 || x >= IW || y >= IH) return 255;
+      return boxMean(I, IW, IH, x, y, pr);
     };
     return get;
   }
 
-  /* 눈금 점수. 주변 평균과 비교하지 않고 이웃 칸끼리 비교한다:
-     위·왼쪽 눈금은 검은 칸이 양옆 칸보다 어둡고 흰 칸이 양옆보다 밝아야 하고,
-     아래·오른쪽 흰 줄은 바로 바깥의 테두리 칸보다 밝아야 한다. 흐린 사진이나 둥근 점 코드에서도 잘 버틴다. */
-  function timingScore(get, N) {
-    var ok = 0, tot = 0, k, top = [], left = [];
-    for (k = 0; k < N; k++) { top.push(get.gray(1, k)); left.push(get.gray(k, 1)); }
-    for (k = 1; k <= N - 2; k++) {
-      var at = (top[k - 1] + top[k + 1]) / 2, al = (left[k - 1] + left[k + 1]) / 2;
-      if (k & 1) { ok += top[k] < at - 1 ? 1 : 0; ok += left[k] < al - 1 ? 1 : 0; }
-      else { ok += top[k] > at + 1 ? 1 : 0; ok += left[k] > al + 1 ? 1 : 0; }
-      tot += 2;
+  /* 눈금 점수. 이웃 칸끼리 비교한다: 눈금의 검은 칸은 양옆 칸보다 어둡고 흰 칸은 양옆보다 밝아야 한다. */
+  function alternation(g) {
+    var ok = 0, n = g.length;
+    for (var k = 1; k <= n - 2; k++) {
+      var a = (g[k - 1] + g[k + 1]) / 2;
+      if (k & 1) { if (g[k] < a - 1) ok++; } else if (g[k] > a + 1) ok++;
     }
-    for (k = 2; k <= N - 2; k++) {
-      ok += get.gray(N - 2, k) > get.gray(N - 1, k) + 2 ? 1 : 0;   // 아래 흰 줄
-      ok += get.gray(k, N - 2) > get.gray(k, N - 1) + 2 ? 1 : 0;   // 오른쪽 흰 줄
-      tot += 2;
-    }
-    return ok / tot;
+    return ok / (n - 2);
+  }
+  function topScore(get, W) {
+    var g = [];
+    for (var k = 0; k < W; k++) g.push(get.gray(1, k));
+    return alternation(g);
+  }
+  /* 위쪽 눈금(가로 칸 수), 왼쪽 눈금(세로 칸 수), 아래·오른쪽 흰 줄(바깥 테두리 칸보다 밝아야 함) 가운데 가장 낮은 점수 */
+  function timingScore(get, W, H, top) {
+    var g = [], k, ok = 0, tot = 0;
+    for (k = 0; k < H; k++) g.push(get.gray(k, 1));
+    var left = alternation(g);
+    for (k = 2; k <= W - 2; k++) { ok += get.gray(H - 2, k) > get.gray(H - 1, k) + 2 ? 1 : 0; tot++; }
+    for (k = 2; k <= H - 2; k++) { ok += get.gray(k, W - 2) > get.gray(k, W - 1) + 2 ? 1 : 0; tot++; }
+    return Math.min(top, left, ok / tot);
   }
 
   function attempt(gray, W, H, I, win) {
@@ -801,28 +853,39 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     var cc = components(bin, W, H), stage = 'noframe';
     var cands = cc.comps.filter(function (c) {
       var bw = c.maxx - c.minx + 1, bh = c.maxy - c.miny + 1;
-      return bw >= 48 && bh >= 48 && bw < 3 * bh && bh < 3 * bw &&
+      return bw >= 40 && bh >= 40 && bw < 6 * bh && bh < 6 * bw &&
         c.minx > 0 && c.miny > 0 && c.maxx < W - 1 && c.maxy < H - 1;
     }).sort(function (a, b) {
       return (b.maxx - b.minx) * (b.maxy - b.miny) - (a.maxx - a.minx) * (a.maxy - a.miny);
     }).slice(0, 6);
+    function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
     for (var ci = 0; ci < cands.length; ci++) {
       var quad = findQuad(cc.lab, W, H, cands[ci]);
       if (!quad) continue;
       if (stage === 'noframe') stage = 'nosize';
       var list = [];
       for (var rot = 0; rot < 4; rot++) {
-        for (var si = 0; si < SIZES.length; si++) {
-          var get = makeSampler(I, W, H, quad, rot, SIZES[si]);
-          if (!get) continue;
-          var sc = timingScore(get, SIZES[si]);
-          if (sc >= 0.82) list.push({ rot: rot, N: SIZES[si], score: sc, get: get });
+        var q0 = quad[rot], q1 = quad[(rot + 1) % 4], q2 = quad[(rot + 2) % 4], q3 = quad[(rot + 3) % 4];
+        var Hm = squareToQuad(q0, q1, q2, q3);
+        if (!Hm) continue;
+        // 사진에서 잰 가로·세로 길이로 칸 수 비율의 범위를 좁힌다 (원근 때문에 넉넉히 1.7배까지 허용)
+        var wpx = (dist(q0, q1) + dist(q3, q2)) / 2, hpx = (dist(q0, q3) + dist(q1, q2)) / 2, rho = hpx / wpx;
+        for (var hi = 0; hi < SIZES.length; hi++) {
+          for (var wi = 0; wi < SIZES.length; wi++) {
+            var Wc = SIZES[wi], Hc = SIZES[hi], ar = Hc / Wc;
+            if (ar > rho * 1.7 || ar * 1.7 < rho || Math.max(Wc, Hc) > MAX_ASPECT * Math.min(Wc, Hc)) continue;
+            var get = makeSampler(I, W, H, Hm, (wpx / Wc + hpx / Hc) / 2, Wc, Hc);
+            var ts = topScore(get, Wc);
+            if (ts < 0.75) continue;
+            var sc = timingScore(get, Wc, Hc, ts);
+            if (sc >= 0.75) list.push({ rot: rot, W: Wc, H: Hc, score: sc, get: get });
+          }
         }
       }
       list.sort(function (a, b) { return b.score - a.score; });
       for (var k = 0; k < Math.min(4, list.length); k++) {
         stage = 'ecc';
-        var res = decodeWith(list[k].get, list[k].N);
+        var res = decodeWith(list[k].get, list[k].W, list[k].H);
         if (res.ok) { res.quad = quad; res.rot = list[k].rot; res.score = list[k].score; return res; }
       }
     }
@@ -848,7 +911,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     return g;
   }
 
-  return { VERSION: VERSION, SIZES: SIZES, LEVELS: LEVELS, layout: layout, markGeom: markGeom, encodeText: encodeText,
+  return { VERSION: VERSION, SIZES: SIZES, LEVELS: LEVELS, MAX_ASPECT: MAX_ASPECT, layout: layout, markGeom: markGeom, encodeText: encodeText,
     decodeMatrix: decodeMatrix, decodeImage: decodeImage, payloadText: payloadText, rgbaToGray: rgbaToGray,
     _rsEncode: rsEncode, _rsDecode: rsDecode, _squareToQuad: squareToQuad };
 });
@@ -973,7 +1036,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
   var LABEL_GAP = 1.5;
   function tabGeom(code) {
     if (!$('tab').checked) return null;
-    var c = 0.065 * code.N, bh = 1.12 * c;
+    var c = 0.065 * Math.min(code.W, code.H), bh = 1.12 * c;
     return { c: c, bh: bh, extra: Math.ceil(bh + LABEL_GAP) };
   }
   function tabShapes(g) {
@@ -987,13 +1050,13 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     return (g ? tabShapes(g) : []).concat(L ? markShapes(L) : []);
   }
   function eachRun(code, fn) {
-    var N = code.N, m = code.matrix;
-    for (var r = 0; r < N; r++) {
+    var W = code.W, H = code.H, m = code.matrix;
+    for (var r = 0; r < H; r++) {
       var c = 0;
-      while (c < N) {
-        if (!m[r * N + c]) { c++; continue; }
+      while (c < W) {
+        if (!m[r * W + c]) { c++; continue; }
         var c0 = c;
-        while (c < N && m[r * N + c]) c++;
+        while (c < W && m[r * W + c]) c++;
         fn(r, c0, c - c0);
       }
     }
@@ -1003,21 +1066,21 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
      점은 아주 짧은 선에 둥근 끝을 씌워 그린다. */
   var DOT = 0.88;
   function modulePaths(code) {
-    var N = code.N, m = code.matrix, Q = QUIET, sq = '', dots = '';
+    var W = code.W, H = code.H, m = code.matrix, Q = QUIET, sq = '', dots = '';
     if ($('dots').value !== 'round') {
       eachRun(code, function (r, c0, len) { sq += 'M' + (Q + c0) + ' ' + (Q + r) + 'h' + len + 'v1h-' + len + 'z'; });
       return { square: sq, dots: '' };
     }
-    sq = 'M' + Q + ' ' + Q + 'h' + N + 'v' + N + 'h-' + N + 'zM' + (Q + 1) + ' ' + (Q + 1) + 'v' + (N - 2) + 'h' + (N - 2) + 'v-' + (N - 2) + 'z';
-    for (var r = 1; r < N - 1; r++)
-      for (var c = 1; c < N - 1; c++)
-        if (m[r * N + c]) dots += 'M' + (Q + c + 0.495) + ' ' + (Q + r + 0.5) + 'h.01';
+    sq = 'M' + Q + ' ' + Q + 'h' + W + 'v' + H + 'h-' + W + 'zM' + (Q + 1) + ' ' + (Q + 1) + 'v' + (H - 2) + 'h' + (W - 2) + 'v-' + (H - 2) + 'z';
+    for (var r = 1; r < H - 1; r++)
+      for (var c = 1; c < W - 1; c++)
+        if (m[r * W + c]) dots += 'M' + (Q + c + 0.495) + ' ' + (Q + r + 0.5) + 'h.01';
     return { square: sq, dots: dots };
   }
   /* 이름표가 있으면 그림 위쪽에 그 높이만큼(칸 단위로 올림) 자리를 더 둔다 */
   function toCanvas(code, scale) {
     var g = tabGeom(code), E = g ? g.extra : 0, k = scale;
-    var cv = document.createElement('canvas'), W = (code.N + 2 * QUIET) * k, H = (code.N + 2 * QUIET + E) * k;
+    var cv = document.createElement('canvas'), W = (code.W + 2 * QUIET) * k, H = (code.H + 2 * QUIET + E) * k;
     cv.width = W; cv.height = H;
     var ctx = cv.getContext('2d');
     ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
@@ -1038,7 +1101,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
   }
   function f2(n) { return (Math.round(n * 100) / 100).toString(); }
   function toSvg(code) {
-    var g = tabGeom(code), E = g ? g.extra : 0, W = code.N + 2 * QUIET, H = W + E;
+    var g = tabGeom(code), E = g ? g.extra : 0, W = code.W + 2 * QUIET, H = code.H + 2 * QUIET + E;
     var body = '<rect width="' + W + '" height="' + H + '" fill="#fff"/><g transform="translate(0 ' + E + ')">';
     var mp = modulePaths(code);
     body += '<path d="' + mp.square + '" fill="#000" shape-rendering="crispEdges"/>';
@@ -1054,13 +1117,20 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
   }
 
   /* ---------- 만들기 ---------- */
+  /* 모양 설정 → 규격의 shape 값 */
+  function shapeOpts() {
+    var v = $('shape').value;
+    if (v === 'fixed') return { mode: 'fixed', w: +$('sizeW').value, h: +$('sizeH').value };
+    var p = v.split(':');
+    return { mode: 'ratio', rw: +p[0], rh: +p[1] };
+  }
   function setMakeButtons(on) { ['selfRead', 'savePng', 'saveSvg'].forEach(function (id) { $(id).disabled = !on; }); }
   function redraw() {
     if (!current) return;
     var img = $('codeImg');
     img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(toSvg(current));   // 화면에는 SVG로 표시
-    img.alt = '소리코드 코드 그림, 한 변 ' + current.N + '칸';
-    var tg = tabGeom(current), pw = (current.N + 2 * QUIET) * MM_PER_MODULE / 10, ph = pw + (tg ? tg.extra : 0) * MM_PER_MODULE / 10;
+    img.alt = '소리코드 코드 그림, 가로 ' + current.W + '칸 세로 ' + current.H + '칸';
+    var tg = tabGeom(current), pw = (current.W + 2 * QUIET) * MM_PER_MODULE / 10, ph = (current.H + 2 * QUIET + (tg ? tg.extra : 0)) * MM_PER_MODULE / 10;
     $('sPrint').textContent = pw.toFixed(1) + ' × ' + ph.toFixed(1) + ' cm 이상';
   }
   async function update() {
@@ -1069,20 +1139,27 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
       current = null; err.hidden = false; err.textContent = '담을 글을 입력해 주세요.';
       $('made').hidden = true; setMakeButtons(false); return;
     }
-    var code;
+    var shape = shapeOpts(), code;
+    $('rowW').hidden = shape.mode !== 'fixed'; $('rowH').hidden = shape.mode !== 'fixed';
+    if (shape.mode === 'fixed' && Math.max(shape.w, shape.h) > SC.MAX_ASPECT * Math.min(shape.w, shape.h)) {
+      current = null; $('made').hidden = true; setMakeButtons(false); err.hidden = false;
+      err.textContent = '긴 변은 짧은 변의 ' + SC.MAX_ASPECT + '배 이하여야 합니다. 가로나 세로 칸 수를 조정해 주세요.';
+      return;
+    }
     try {
-      code = await SC.encodeText(text, { level: $('level').value, lang: $('lang').value, mark: $('mark').checked });
+      code = await SC.encodeText(text, { level: $('level').value, lang: $('lang').value, mark: $('mark').checked, shape: shape });
     } catch (e) {
       if (my !== seq) return;
       current = null; $('made').hidden = true; setMakeButtons(false); err.hidden = false;
-      err.textContent = e && e.message === 'capacity'
-        ? '글이 너무 깁니다. 지금 설정으로는 ' + e.max + '바이트까지 담을 수 있는데 ' + e.need + '바이트가 필요합니다. 글을 줄이거나 훼손 대비를 낮춰 주세요.'
-        : '코드를 만들지 못했습니다. 글을 다시 확인해 주세요.';
+      err.textContent = !(e && e.message === 'capacity') ? '코드를 만들지 못했습니다. 글을 다시 확인해 주세요.'
+        : shape.mode === 'fixed'
+          ? '이 크기(' + shape.w + ' × ' + shape.h + '칸)에는 ' + e.max + '바이트까지 담을 수 있는데 ' + e.need + '바이트가 필요합니다. 크기를 키우거나 글을 줄여 주세요.'
+          : '글이 너무 깁니다. 이 모양과 설정으로는 ' + e.max + '바이트까지 담을 수 있는데 ' + e.need + '바이트가 필요합니다. 글을 줄이거나 훼손 대비를 낮추거나 모양을 바꿔 주세요.';
       return;
     }
     if (my !== seq) return;
     current = code; err.hidden = true; $('made').hidden = false; setMakeButtons(true);
-    $('sSize').textContent = code.N + ' × ' + code.N + ' 칸';
+    $('sSize').textContent = code.W + ' × ' + code.H + ' 칸';
     $('sChars').textContent = Array.from(text).length + '자 · ' + code.rawBytes + '바이트' + (code.mode === 1 ? ' · 압축' : '');
     $('sUse').textContent = code.storedBytes + ' / ' + code.capacity + ' 바이트';
     $('meter').style.width = Math.round(code.storedBytes / code.capacity * 100) + '%';
@@ -1179,7 +1256,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     lastRead = { text: text, lang: res.lang };
     setStatus('good', '읽기 성공. ' + Array.from(text).length + '자를 읽었습니다.');
     $('result').textContent = text; $('result').hidden = false; $('resultBtns').hidden = false;
-    $('rSize').textContent = res.N + ' × ' + res.N + ' 칸';
+    $('rSize').textContent = res.W + ' × ' + res.H + ' 칸';
     $('rLevel').textContent = LEVEL_NAME[res.level] || res.level;
     $('rFix').textContent = res.corrected + ' / ' + res.totalCodewords + ' 바이트';
     $('readStats').hidden = false;
@@ -1362,6 +1439,12 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
   $('lang').addEventListener('change', update);
   $('level').addEventListener('change', update);
   $('mark').addEventListener('change', update);
+  ['sizeW', 'sizeH'].forEach(function (id) {
+    $(id).innerHTML = SC.SIZES.map(function (n) { return '<option value="' + n + '">' + n + '칸</option>'; }).join('');
+    $(id).addEventListener('change', update);
+  });
+  $('sizeW').value = '96'; $('sizeH').value = '48';
+  $('shape').addEventListener('change', update);
   $('tab').addEventListener('change', redraw);
   $('dots').addEventListener('change', redraw);
   $('selfRead').addEventListener('click', function () {
@@ -1372,12 +1455,12 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
   });
   $('savePng').addEventListener('click', function () {
     if (!current) return;
-    var n = current.N;
-    toCanvas(current, 12).toBlob(function (b) { if (b) saveFile('soriboso-' + n + '.png', b); }, 'image/png');
+    var n = current.W + 'x' + current.H;
+    toCanvas(current, 12).toBlob(function (b) { if (b) saveFile('soricode-' + n + '.png', b); }, 'image/png');
   });
   $('saveSvg').addEventListener('click', function () {
     if (!current) return;
-    saveFile('soriboso-' + current.N + '.svg', new Blob([toSvg(current)], { type: 'image/svg+xml' }));
+    saveFile('soricode-' + current.W + 'x' + current.H + '.svg', new Blob([toSvg(current)], { type: 'image/svg+xml' }));
   });
   $('file').addEventListener('change', function (e) { var f = e.target.files && e.target.files[0]; e.target.value = ''; readFile(f); });
   var drop = $('drop');
@@ -1394,10 +1477,10 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     catch (e) { toast(fail); }
   });
   var rows = '';
-  [32, 48, 64, 96, 128, 176].forEach(function (N) {
-    var c = SC.layout(N, 1, false).textCap;
-    rows += '<div class="item"><span class="k">' + N + '칸</span><span class="v">' + c + '바이트 · 약 ' + Math.floor(c / 3) + '자 · ' +
-      ((N + 2 * QUIET) * MM_PER_MODULE / 10).toFixed(1) + ' cm</span></div>';
+  [[48, 48], [96, 48], [96, 96], [176, 48], [176, 96], [176, 176]].forEach(function (wh) {
+    var c = SC.layout(wh[0], wh[1], 1, false).textCap;
+    rows += '<div class="item"><span class="k">' + wh[0] + ' × ' + wh[1] + '칸</span><span class="v">' + c + '바이트 · 약 ' + Math.floor(c / 3) + '자 · ' +
+      ((wh[0] + 2 * QUIET) * MM_PER_MODULE / 10).toFixed(1) + ' × ' + ((wh[1] + 2 * QUIET) * MM_PER_MODULE / 10).toFixed(1) + ' cm</span></div>';
   });
   $('capRows').innerHTML = rows;
   updateCamUi();
