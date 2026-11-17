@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>소리코드 v0.3</title>
+<title>소리코드 v0.3 (200칸 확장)</title>
 <style>
 :root {
   /* 배치: 휴대폰 앱 한 화면. 위 제목 막대, 가운데 스크롤 화면 3개(만들기·읽기·규격), 아래 탭 막대.
@@ -201,7 +201,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
       <div class="group">
         <div class="stack"><b>테두리</b><span>바깥 한 줄은 모두 검은 칸입니다. 판독기는 이 사각 테두리로 코드를 찾고 기울기를 바로잡습니다.</span></div>
         <div class="stack"><b>눈금</b><span>테두리 바로 안쪽 줄에서 위쪽과 왼쪽은 검정과 흰색이 번갈아 나오고, 아래쪽과 오른쪽은 흰색입니다. 위쪽 눈금으로 가로 칸 수를, 왼쪽 눈금으로 세로 칸 수를 알아내고 방향도 정합니다.</span></div>
-        <div class="stack"><b>크기</b><span>가로와 세로를 각각 24칸부터 176칸까지 4칸 단위로 정합니다. 정사각형이 아니어도 되지만 긴 변은 짧은 변의 4배 이하여야 합니다. 둘레에 흰 여백 4칸 이상이 필요합니다.</span></div>
+        <div class="stack"><b>크기</b><span>가로와 세로를 각각 24칸부터 200칸까지 4칸 단위로 정합니다. 정사각형이 아니어도 되지만 긴 변은 짧은 변의 6배 이하여야 합니다. 둘레에 흰 여백 4칸 이상이 필요합니다.</span></div>
         <div class="stack"><b>점 모양 (선택)</b><span>안쪽 칸은 네모 대신 지름이 칸의 88%인 둥근 점으로 그려도 됩니다. 바깥 테두리 한 줄은 반드시 이어진 선이어야 합니다. 판독기는 칸 가운데를 읽으므로 두 모양을 똑같이 읽습니다.</span></div>
         <div class="stack"><b>이름표 (선택)</b><span>위쪽 테두리 바깥 왼쪽에 SORICODE 이름표를 테두리에서 1.5칸 띄워 둘 수 있습니다. 데이터는 담지 않습니다. 판독기는 테두리와 떨어진 글자를 무시하고, 한 변에서 바깥으로 튀어나온 부분이 있어도 남은 테두리로 그 변을 찾습니다.</span></div>
         <div class="stack"><b>가운데 표시 (선택)</b><span>짧은 변을 n칸이라 할 때 코드 한가운데 세로 2×round(9n/100)칸, 가로는 그 2배인 자리는 데이터를 넣지 않고 비워 두어 SORI CODE 표시를 그립니다. 형식 정보의 한 비트가 이 자리를 비웠는지 알려 줍니다.</span></div>
@@ -244,10 +244,10 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
 
   var VERSION = 2;
   var SIZES = [];
-  for (var n0 = 24; n0 <= 176; n0 += 4) SIZES.push(n0);
+  for (var n0 = 24; n0 <= 200; n0 += 4) SIZES.push(n0);   // 200칸까지 (2026-11-18 확장: 문서 하단 가로 띠용, 원래 176)
   var LEVELS = ['L', 'M', 'H'];
   var RATIOS = [0.125, 0.25, 0.375];
-  var FMT_PAR = 6, HEADER = 6, CRC_LEN = 4, MAX_ASPECT = 4;
+  var FMT_PAR = 6, HEADER = 6, CRC_LEN = 4, MAX_ASPECT = 6;   // 긴 변 ≤ 짧은 변 × 6 (2026-11-18 확장, 원래 4)
 
   /* ---------- GF(256), 원시다항식 0x11D ---------- */
   var EXP = new Uint8Array(512), LOG = new Uint8Array(256);
@@ -349,7 +349,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
   }
 
   /* ---------- 배치 계산 ---------- */
-  /* 코드는 가로 W칸 × 세로 H칸이다 (각각 24~176칸, 4칸 단위, 긴 변은 짧은 변의 MAX_ASPECT배 이하).
+  /* 코드는 가로 W칸 × 세로 H칸이다 (각각 24~200칸, 4칸 단위, 긴 변은 짧은 변의 MAX_ASPECT배 이하).
      판 1: 정사각형만, 형식 정보 8바이트. 판 2: 직사각형까지, 형식 정보 9바이트. 새 코드는 모두 판 2로 만든다. */
   function fmtLen(ver) { return ver === 1 ? 8 : 9; }
   /* 가운데 표시 자리(칸): 짧은 변을 n이라 할 때 세로 2·round(9n/100), 가로는 세로의 2배. 이 자리에는 데이터를 넣지 않는다. */
@@ -853,7 +853,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     var cc = components(bin, W, H), stage = 'noframe';
     var cands = cc.comps.filter(function (c) {
       var bw = c.maxx - c.minx + 1, bh = c.maxy - c.miny + 1;
-      return bw >= 40 && bh >= 40 && bw < 6 * bh && bh < 6 * bw &&
+      return bw >= 40 && bh >= 40 && bw < 8 * bh && bh < 8 * bw &&   // 비율 상한 6배 + 원근 여유
         c.minx > 0 && c.miny > 0 && c.maxx < W - 1 && c.maxy < H - 1;
     }).sort(function (a, b) {
       return (b.maxx - b.minx) * (b.maxy - b.miny) - (a.maxx - a.minx) * (a.maxy - a.miny);
@@ -1477,7 +1477,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     catch (e) { toast(fail); }
   });
   var rows = '';
-  [[48, 48], [96, 48], [96, 96], [176, 48], [176, 96], [176, 176]].forEach(function (wh) {
+  [[48, 48], [96, 48], [96, 96], [176, 48], [200, 44], [176, 96], [176, 176], [200, 200]].forEach(function (wh) {
     var c = SC.layout(wh[0], wh[1], 1, false).textCap;
     rows += '<div class="item"><span class="k">' + wh[0] + ' × ' + wh[1] + '칸</span><span class="v">' + c + '바이트 · 약 ' + Math.floor(c / 3) + '자 · ' +
       ((wh[0] + 2 * QUIET) * MM_PER_MODULE / 10).toFixed(1) + ' × ' + ((wh[1] + 2 * QUIET) * MM_PER_MODULE / 10).toFixed(1) + ' cm</span></div>';
