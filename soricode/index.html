@@ -134,7 +134,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
           <select id="lang"><option value="ko" selected>한국어</option><option value="en">English</option><option value="ja">日本語</option></select></div>
         <div class="item"><label for="level">훼손 대비</label>
           <select id="level"><option value="L">낮음 (약 6% 복구)</option><option value="M" selected>보통 (약 12% 복구)</option><option value="H">높음 (약 18% 복구)</option></select></div>
-        <div class="item" style="display:none"><label for="mark">가운데 SOCD 표시</label><input type="checkbox" class="sw" id="mark" checked></div>
+        <div class="item" style="display:none"><label for="mark">가운데 SORI CODE 표시</label><input type="checkbox" class="sw" id="mark" checked></div>
       </div>
 
       <div id="made" class="screen">
@@ -195,7 +195,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
         <div class="stack"><b>테두리</b><span>바깥 한 줄은 모두 검은 칸입니다. 판독기는 이 사각 테두리로 코드를 찾고 기울기를 바로잡습니다.</span></div>
         <div class="stack"><b>눈금</b><span>테두리 바로 안쪽 줄에서 위쪽과 왼쪽은 검정과 흰색이 번갈아 나오고, 아래쪽과 오른쪽은 흰색입니다. 칸 수와 방향을 알려 줍니다.</span></div>
         <div class="stack"><b>크기</b><span>한 변 24칸부터 176칸까지 4칸 단위로 39가지입니다. 둘레에 흰 여백 4칸 이상이 필요합니다.</span></div>
-        <div class="stack"><b>가운데 표시 (선택)</b><span>코드 한가운데 가로 2×round(N/5)칸, 세로 2×round(9N/100)칸은 데이터를 넣지 않고 비워 두어 SOCD 표시를 그립니다. 형식 정보의 한 비트가 이 자리를 비웠는지 알려 줍니다.</span></div>
+        <div class="stack"><b>가운데 표시 (선택)</b><span>코드 한가운데 세로 2×round(9N/100)칸, 가로는 그 2배인 자리는 데이터를 넣지 않고 비워 두어 SORI CODE 표시를 그립니다. 형식 정보의 한 비트가 이 자리를 비웠는지 알려 줍니다.</span></div>
         <div class="stack"><b>데이터</b><span>안쪽 (N−4)×(N−4)칸에 왼쪽 위부터 한 줄씩, 가운데 표시 자리는 건너뛰며 채웁니다. 한 칸이 1비트이고 검정이 1입니다.</span></div>
       </div>
       <p class="cap">부호화</p>
@@ -340,9 +340,9 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
   }
 
   /* ---------- 배치 계산 ---------- */
-  /* 가운데 표시 자리(칸): 가로 2·round(N/5), 세로 2·round(9N/100). 이 자리에는 데이터를 넣지 않는다. */
+  /* 가운데 표시 자리(칸): 세로 2·round(9N/100), 가로는 세로의 2배. 이 자리에는 데이터를 넣지 않는다. */
   function markGeom(N) {
-    var w = 2 * Math.round(N / 5), h = 2 * Math.round(N * 9 / 100);
+    var h = 2 * Math.round(N * 9 / 100), w = 2 * h;
     return { x: (N - w) / 2, y: (N - h) / 2, w: w, h: h };
   }
   var cellCache = {};
@@ -800,7 +800,6 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
   var EXAMPLE = '안녕하세요. 이것은 소리코드 예시입니다. 이 코드를 사진으로 찍으면 여기에 적힌 글을 소리로 들을 수 있습니다.';
   var QUIET = 4, MM_PER_MODULE = 0.5;
   var LEVEL_NAME = { L: '낮음', M: '보통', H: '높음' };
-  var FONT = "-apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', Roboto, sans-serif";
   var current = null, lastRead = null, seq = 0;
 
   /* ---------- 탭 ---------- */
@@ -832,17 +831,73 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
   }
 
   /* ---------- 코드 그림 ---------- */
-  var measureCtx = document.createElement('canvas').getContext('2d');
-  /* 가운데 표시(SOCD + 스피커). 칸 단위 좌표, 흰 여백(QUIET) 포함 */
+  /* 가운데 표시: 왼쪽에 SORI / CODE 두 줄, 오른쪽 가운데에 스피커.
+     글꼴을 쓰지 않고 도형으로만 그려서 어느 기기에서나 똑같이 보인다.
+     칸 단위 좌표, 흰 여백(QUIET) 포함. c = 글자 높이 */
+  var MARK_TW = 3.06, MARK_LG = 0.32, MARK_GAP = 0.26, MARK_ICON = 1.45;
   function markLayout(code) {
     var m = code.mark;
     if (!m) return null;
-    var CAP = 0.72, ICON = 1.15 * CAP, IW = 1.08 * ICON, GAP = 0.16;
-    measureCtx.font = '900 100px ' + FONT;
-    var tw1 = (measureCtx.measureText('SOCD').width || 135) / 100;
-    var fs = Math.min(m.h * 0.74 / ICON, m.w * 0.84 / (tw1 + GAP + IW));
-    var total = (tw1 + GAP + IW) * fs, sx = QUIET + m.x + m.w / 2 - total / 2, cy = QUIET + m.y + m.h / 2;
-    return { fs: fs, tx: sx, ty: cy + CAP * fs / 2, tw: tw1 * fs, ix: sx + (tw1 + GAP) * fs, ih: ICON * fs, cy: cy };
+    var iw = 1.08 * MARK_ICON, th = 2 + MARK_LG;
+    var c = Math.min(m.h * 0.8 / th, m.w * 0.86 / (MARK_TW + MARK_GAP + iw));
+    var total = (MARK_TW + MARK_GAP + iw) * c, sx = QUIET + m.x + m.w / 2 - total / 2, cy = QUIET + m.y + m.h / 2;
+    return { c: c, tx: sx, top: cy - th * c / 2, ix: sx + (MARK_TW + MARK_GAP) * c, ih: MARK_ICON * c, cy: cy };
+  }
+  /* 표시를 이루는 도형 목록. d는 SVG 경로, sw가 있으면 그 굵기의 선, 없으면 채움 */
+  function markShapes(L) {
+    var c = L.c, sw = 0.2 * c, out = [], o = 0, b = 0;
+    function f3(n) { return (Math.round(n * 1000) / 1000).toString(); }
+    function X(v) { return f3(L.tx + (o + v) * c); }
+    function Y(v) { return f3(L.top + (b + v) * c); }
+    function R(v) { return f3(v * c); }
+    function line(d) { out.push({ sw: sw, d: d }); }
+    /* 글자마다 도형을 넣고 글자 너비를 돌려준다 (글자 높이 = 1) */
+    var G = {
+      S: function () {
+        line('M' + X(0.565) + ' ' + Y(0.185) + 'A' + R(0.25) + ' ' + R(0.2) + ' 0 1 0 ' + X(0.36) + ' ' + Y(0.5) +
+          'A' + R(0.25) + ' ' + R(0.2) + ' 0 1 1 ' + X(0.155) + ' ' + Y(0.815));
+        return 0.72;
+      },
+      O: function () {
+        line('M' + X(0.1) + ' ' + Y(0.5) + 'A' + R(0.26) + ' ' + R(0.4) + ' 0 1 1 ' + X(0.62) + ' ' + Y(0.5) +
+          'A' + R(0.26) + ' ' + R(0.4) + ' 0 1 1 ' + X(0.1) + ' ' + Y(0.5) + 'Z');
+        return 0.72;
+      },
+      C: function () {
+        line('M' + X(0.534) + ' ' + Y(0.203) + 'A' + R(0.26) + ' ' + R(0.4) + ' 0 1 0 ' + X(0.534) + ' ' + Y(0.797));
+        return 0.72;
+      },
+      D: function () {
+        line('M' + X(0.1) + ' ' + Y(0.1) + 'H' + X(0.28) + 'A' + R(0.34) + ' ' + R(0.4) + ' 0 0 1 ' + X(0.28) + ' ' + Y(0.9) + 'H' + X(0.1) + 'Z');
+        return 0.72;
+      },
+      R: function () {
+        line('M' + X(0.1) + ' ' + Y(1) + 'V' + Y(0.1) + 'H' + X(0.36) + 'A' + R(0.26) + ' ' + R(0.2) + ' 0 0 1 ' + X(0.36) + ' ' + Y(0.5) + 'H' + X(0.1));
+        out.push({ d: 'M' + X(0.26) + ' ' + Y(0.5) + 'L' + X(0.48) + ' ' + Y(0.5) + 'L' + X(0.72) + ' ' + Y(1) + 'L' + X(0.5) + ' ' + Y(1) + 'Z' });
+        return 0.72;
+      },
+      I: function () {
+        line('M' + X(0) + ' ' + Y(0.1) + 'H' + X(0.6) + 'M' + X(0.3) + ' ' + Y(0.1) + 'V' + Y(0.9) + 'M' + X(0) + ' ' + Y(0.9) + 'H' + X(0.6));
+        return 0.6;
+      },
+      E: function () {
+        line('M' + X(0.6) + ' ' + Y(0.1) + 'H' + X(0.1) + 'V' + Y(0.9) + 'H' + X(0.6) + 'M' + X(0.1) + ' ' + Y(0.5) + 'H' + X(0.54));
+        return 0.6;
+      }
+    };
+    ['SORI', 'CODE'].forEach(function (word, li) {
+      o = 0; b = li * (1 + MARK_LG);
+      word.split('').forEach(function (ch) { o += G[ch]() + 0.1; });
+    });
+    // 스피커
+    var x0 = L.ix, h = L.ih, y0 = L.cy - h / 2, cx = x0 + 0.56 * h, cy = y0 + 0.5 * h;
+    out.push({ d: 'M' + f3(x0) + ' ' + f3(y0 + 0.32 * h) + 'L' + f3(x0 + 0.24 * h) + ' ' + f3(y0 + 0.32 * h) + 'L' + f3(x0 + 0.54 * h) + ' ' + f3(y0 + 0.06 * h) +
+      'L' + f3(x0 + 0.54 * h) + ' ' + f3(y0 + 0.94 * h) + 'L' + f3(x0 + 0.24 * h) + ' ' + f3(y0 + 0.68 * h) + 'L' + f3(x0) + ' ' + f3(y0 + 0.68 * h) + 'Z' });
+    [0.26, 0.46].forEach(function (rr) {
+      var dx = rr * h * Math.cos(0.7), dy = rr * h * Math.sin(0.7);
+      out.push({ sw: 0.11 * h, round: true, d: 'M' + f3(cx + dx) + ' ' + f3(cy - dy) + 'A' + f3(rr * h) + ' ' + f3(rr * h) + ' 0 0 1 ' + f3(cx + dx) + ' ' + f3(cy + dy) });
+    });
+    return out;
   }
   function eachRun(code, fn) {
     var N = code.N, m = code.matrix;
@@ -865,22 +920,17 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     eachRun(code, function (r, c0, len) { ctx.fillRect((QUIET + c0) * k, (QUIET + r) * k, len * k, k); });
     var L = markLayout(code);
     if (L) {
-      ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
-      ctx.font = '900 ' + (L.fs * k) + 'px ' + FONT;
-      ctx.fillText('SOCD', L.tx * k, L.ty * k);
-      var x0 = L.ix * k, h = L.ih * k, y0 = L.cy * k - h / 2;
-      ctx.beginPath();
-      ctx.moveTo(x0, y0 + 0.32 * h); ctx.lineTo(x0 + 0.24 * h, y0 + 0.32 * h); ctx.lineTo(x0 + 0.54 * h, y0 + 0.06 * h);
-      ctx.lineTo(x0 + 0.54 * h, y0 + 0.94 * h); ctx.lineTo(x0 + 0.24 * h, y0 + 0.68 * h); ctx.lineTo(x0, y0 + 0.68 * h);
-      ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = '#000000'; ctx.lineWidth = 0.11 * h; ctx.lineCap = 'round';
-      [0.26, 0.46].forEach(function (rr) {
-        ctx.beginPath(); ctx.arc(x0 + 0.56 * h, y0 + 0.5 * h, rr * h, -0.7, 0.7); ctx.stroke();
+      ctx.save(); ctx.scale(k, k);
+      ctx.strokeStyle = '#000000'; ctx.fillStyle = '#000000'; ctx.lineJoin = 'miter';
+      markShapes(L).forEach(function (sh) {
+        var p = new Path2D(sh.d);
+        if (sh.sw) { ctx.lineWidth = sh.sw; ctx.lineCap = sh.round ? 'round' : 'butt'; ctx.stroke(p); }
+        else ctx.fill(p);
       });
+      ctx.restore();
     }
     return cv;
   }
-  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
   function f2(n) { return (Math.round(n * 100) / 100).toString(); }
   function toSvg(code) {
     var size = code.N + 2 * QUIET, d = '', body = '<rect width="' + size + '" height="' + size + '" fill="#fff"/>';
@@ -888,15 +938,10 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
     body += '<path d="' + d + '" fill="#000" shape-rendering="crispEdges"/>';
     var L = markLayout(code);
     if (L) {
-      var x0 = L.ix, h = L.ih, y0 = L.cy - h / 2, cx = x0 + 0.56 * h, cy = y0 + 0.5 * h;
-      body += '<text x="' + f2(L.tx) + '" y="' + f2(L.ty) + '" font-size="' + f2(L.fs) + '" textLength="' + f2(L.tw) +
-        '" lengthAdjust="spacingAndGlyphs" fill="#000" font-family="' + esc(FONT) + '" font-weight="900">SOCD</text>';
-      body += '<path fill="#000" d="M' + f2(x0) + ' ' + f2(y0 + 0.32 * h) + 'L' + f2(x0 + 0.24 * h) + ' ' + f2(y0 + 0.32 * h) + 'L' + f2(x0 + 0.54 * h) + ' ' + f2(y0 + 0.06 * h) +
-        'L' + f2(x0 + 0.54 * h) + ' ' + f2(y0 + 0.94 * h) + 'L' + f2(x0 + 0.24 * h) + ' ' + f2(y0 + 0.68 * h) + 'L' + f2(x0) + ' ' + f2(y0 + 0.68 * h) + 'z"/>';
-      [0.26, 0.46].forEach(function (rr) {
-        var dx = rr * h * Math.cos(0.7), dy = rr * h * Math.sin(0.7);
-        body += '<path fill="none" stroke="#000" stroke-width="' + f2(0.11 * h) + '" stroke-linecap="round" d="M' + f2(cx + dx) + ' ' + f2(cy - dy) +
-          'A' + f2(rr * h) + ' ' + f2(rr * h) + ' 0 0 1 ' + f2(cx + dx) + ' ' + f2(cy + dy) + '"/>';
+      markShapes(L).forEach(function (sh) {
+        body += sh.sw
+          ? '<path fill="none" stroke="#000" stroke-width="' + f2(sh.sw) + '" stroke-linejoin="miter" stroke-linecap="' + (sh.round ? 'round' : 'butt') + '" d="' + sh.d + '"/>'
+          : '<path fill="#000" d="' + sh.d + '"/>';
       });
     }
     var mm = (size * MM_PER_MODULE).toFixed(1);
@@ -909,7 +954,7 @@ textarea { display: block; width: 100%; min-height: 128px; resize: vertical; bor
   function redraw() {
     if (!current) return;
     var img = $('codeImg');
-    img.src = toCanvas(current, 4).toDataURL('image/png');
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(toSvg(current));   // 화면에는 SVG로 표시
     img.alt = '소리코드 코드 그림, 한 변 ' + current.N + '칸';
     $('sPrint').textContent = '한 변 ' + ((current.N + 2 * QUIET) * MM_PER_MODULE / 10).toFixed(1) + ' cm 이상';
   }
